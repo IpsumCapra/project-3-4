@@ -76,6 +76,14 @@ void loop()
 		{ //change here the UID of the card/cards that you want to give access
 			Serial.println("Authorized access");
 			Serial.println();
+			analogWrite(greenPin, 255);
+			delay(300);
+			analogWrite(greenPin, 0);
+			delay(300);
+			analogWrite(greenPin, 255);
+			delay(300);
+			analogWrite(greenPin, 0);
+			
 			cardAccess = true;
 		}
 		else
