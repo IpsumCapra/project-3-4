@@ -27,10 +27,12 @@ int redPin = A0;
 int greenPin = A1;
 
 //vars
+String cards[3] = {"CA 4A F5 0B", "96 B6 69 32", "C6 93 B8 32"};
+int cardNr;
 bool cardAccess = false;
-String pin = "1234";
-String code;
+String pin[3] = {"1234", "0000", "1515"};
 int number = 0;
+String code;
 
 void setup()
 {
@@ -45,14 +47,15 @@ void loop()
 
 	if (!cardAccess)
 	{
-		//-------------------------------------CARD READING--------------------------------------------
+		//-------------------------------------CARD READING--------------------------------------------//
 		// Look for new cards
 		if (!mfrc522.PICC_IsNewCardPresent())
 		{
 			return;
 		} // Select one of the cards
-		if (!mfrc522.PICC_ReadCardSerial())	{
-		 	return;
+		if (!mfrc522.PICC_ReadCardSerial())
+		{
+			return;
 		}
 
 		//Show UID on serial monitor
@@ -71,38 +74,35 @@ void loop()
 		Serial.println();
 		Serial.print("Message : ");
 		content.toUpperCase();
-
-		if (content.substring(1) == "CA 4A F5 0B")
-		{ //change here the UID of the card/cards that you want to give access
-			Serial.println("Authorized access");
-			Serial.println();
-			analogWrite(greenPin, 255);
-			delay(300);
-			analogWrite(greenPin, 0);
-			delay(300);
-			analogWrite(greenPin, 255);
-			delay(300);
-			analogWrite(greenPin, 0);
-			
-			cardAccess = true;
-		}
-		else
+		int len = sizeof(cards) / sizeof(cards[0]);
+		for (int i = 0; i < len; i++)
 		{
-			Serial.println(" Access denied");
-			analogWrite(redPin, 255);
-			delay(3000);
-			analogWrite(redPin, 0);
-			cardAccess = false;
+			if (content.substring(1) == cards[i]) // scan for card
+			{
+				Serial.println("Authorized access");
+				Serial.println();
+				analogWrite(greenPin, 255);
+				delay(300);
+				analogWrite(greenPin, 0);
+				delay(300);
+				analogWrite(greenPin, 255);
+				delay(300);
+				analogWrite(greenPin, 0);
+				cardNr = i;
+				cardAccess = true;
+				break;
+			}
+			
 		}
 	}
 
-	//-------------------------------------KEYPAD LOGIN--------------------------------------------
+	//-------------------------------------KEYPAD LOGIN--------------------------------------------//.
 
 	if (cardAccess)
 	{
 		char key;
 		// correct ping
-		if (number >= 4 && code == pin)
+		if (number >= 4 && code == pin[cardNr])
 		{
 			Serial.println("Logged into ATM");
 			number = 0;
