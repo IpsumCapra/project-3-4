@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-<h1>Acceptance Criteria</h1>
+<h1>Technical Requirements</h1>
 <ul>
    <li><a href="https://github.com/IpsumCapra/project-3-4/issues/number">US-E0</a></li>
 </ul>
-<h1>Technical Requirements</h1>
+<h1>Acceptance Criteria</h1>
 <ul>
    <li><a href="https://github.com/IpsumCapra/project-3-4/issues/number">TR-E0</a></li>
 </ul>
