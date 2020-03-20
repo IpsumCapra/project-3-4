@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="Project-34:jar" />
+    </artifacts-to-build>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ed8714a9-d166-4c9b-befe-845dd84c82bb" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1YzI89yrY7l6oVq8KOjpest2cz6" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="Downloaded.Files.Path.Enabled" value="false" />
+    <property name="Repository.Attach.Annotations" value="false" />
+    <property name="Repository.Attach.JavaDocs" value="false" />
+    <property name="Repository.Attach.Sources" value="false" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.general" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="13.0.1" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="App" />
+      <module name="Evil-ATM" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GpioControlExample" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="GpioControlExample" />
+      <module name="Evil-ATM" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="Evil-ATM" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.App" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ed8714a9-d166-4c9b-befe-845dd84c82bb" name="Default Changelist" comment="" />
+      <created>1583938833886</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1583938833886</updated>
+      <workItem from="1583938837255" duration="3804000" />
+      <workItem from="1584008560975" duration="9000" />
+      <workItem from="1584008590461" duration="662000" />
+      <workItem from="1584018277295" duration="693000" />
+      <workItem from="1584449652084" duration="5040000" />
+      <workItem from="1584637636681" duration="1090000" />
+      <workItem from="1584642058510" duration="449000" />
+      <workItem from="1584642530424" duration="1358000" />
+      <workItem from="1584692014331" duration="5734000" />
+      <workItem from="1584700038539" duration="13000" />
+      <workItem from="1584700065419" duration="300000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="484" y="223" width="941" height="583" key="#GpioControlExample" timestamp="1584642722137">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="484" y="223" width="941" height="583" key="#GpioControlExample/0.0.1920.1080@0.0.1920.1080" timestamp="1584642722137" />
+    <state x="670" y="224" width="1162" height="684" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1584642090833">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="670" y="224" width="1162" height="684" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584642090833" />
+    <state x="755" y="177" width="400" height="567" key="#com.intellij.ide.util.MemberChooser" timestamp="1583947080493">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="755" y="177" width="400" height="567" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1583947080493" />
+    <state x="816" y="138" width="525" height="418" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1584694339916">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="816" y="138" width="525" height="418" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584694339916" />
+    <state x="371" y="410" width="1177" height="149" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1584450104927">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="371" y="410" width="1177" height="149" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584450104927" />
+    <state x="630" y="363" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.packages" timestamp="1584450106768">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="630" y="363" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.packages/0.0.1920.1080@0.0.1920.1080" timestamp="1584450106768" />
+    <state x="424" y="329" width="1014" height="562" key="DetectedRootsChooserDialog" timestamp="1584637708368">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="424" y="329" width="1014" height="562" key="DetectedRootsChooserDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584637708368" />
+    <state x="421" y="153" width="1114" height="503" key="FileChooserDialogImpl" timestamp="1584699312204">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="421" y="153" width="1114" height="503" key="FileChooserDialogImpl/0.0.1920.1080@0.0.1920.1080" timestamp="1584699312204" />
+    <state x="776" y="396" width="357" height="201" key="Github.ShareDialog" timestamp="1584700129212">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="776" y="396" width="357" height="201" key="Github.ShareDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584700129212" />
+    <state width="1870" height="289" key="GridCell.Tab.0.bottom" timestamp="1584009251803">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1870" height="289" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1584009251803" />
+    <state width="1870" height="289" key="GridCell.Tab.0.center" timestamp="1584009251803">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1870" height="289" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1584009251803" />
+    <state width="1870" height="289" key="GridCell.Tab.0.left" timestamp="1584009251803">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1870" height="289" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1584009251803" />
+    <state width="1870" height="289" key="GridCell.Tab.0.right" timestamp="1584009251803">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1870" height="289" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1584009251803" />
+    <state x="577" y="-3" width="1024" height="833" key="SettingsEditor" timestamp="1584699312653">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="577" y="-3" width="1024" height="833" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1584699312653" />
+    <state x="1014" y="186" key="com.intellij.ide.util.TipDialog" timestamp="1584700065903">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="1014" y="186" key="com.intellij.ide.util.TipDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584700065903" />
+    <state x="522" y="394" width="912" height="200" key="com.intellij.jarRepository.RepositoryAttachDialog-DOWNLOAD" timestamp="1584451323855">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="522" y="394" width="912" height="200" key="com.intellij.jarRepository.RepositoryAttachDialog-DOWNLOAD/0.0.1920.1080@0.0.1920.1080" timestamp="1584451323855" />
+  </component>
+</project>
