@@ -28,11 +28,14 @@ int greenPin = A1;
 
 //vars
 String cards[3] = {"CA 4A F5 0B", "96 B6 69 32", "C6 93 B8 32"};
+String pin[3] = {"1234", "0000", "1515"};
+int pinAttempts[3] = {0, 0, 0};
 int cardNr;
 bool cardAccess = false;
-String pin[3] = {"1234", "0000", "1515"};
 int number = 0;
 String code;
+
+void blink ( int pin, int time, int repeats);
 
 void setup()
 {
@@ -79,50 +82,51 @@ void loop()
 		{
 			if (content.substring(1) == cards[i]) // scan for card
 			{
+				if (pinAttempts[i] >= 3) {
+					Serial.println("This card is blocked");
+					return blink(redPin, 200, 3);
+					}
+				
 				Serial.println("Authorized access");
 				Serial.println();
-				analogWrite(greenPin, 255);
-				delay(300);
-				analogWrite(greenPin, 0);
-				delay(300);
-				analogWrite(greenPin, 255);
-				delay(300);
-				analogWrite(greenPin, 0);
+				
 				cardNr = i;
 				cardAccess = true;
-				break;
+				return blink(greenPin, 200, 2);
 			}
 			
 		}
+		Serial.println("Card not found");
+		Serial.println();
+		blink(redPin, 500, 2);
+
 	}
 
 	//-------------------------------------KEYPAD LOGIN--------------------------------------------//.
 
 	if (cardAccess)
 	{
+		
 		char key;
 		// correct ping
 		if (number >= 4 && code == pin[cardNr])
 		{
 			Serial.println("Logged into ATM");
+			pinAttempts[cardNr] = 0;
 			number = 0;
 			code = "";
 			cardAccess = false;
-			analogWrite(greenPin, 255);
-			delay(3000);
-			analogWrite(greenPin, 0);
-			return;
+			return blink(greenPin, 1000, 1);
 		} // Incorrect ping
 		else if (number >= 4)
 		{
-			Serial.println("Wrong pin");
+			Serial.println("Wrong pin attempt: ");
+			pinAttempts[cardNr]++;
+			Serial.println(pinAttempts[cardNr]);
 			number = 0;
 			code = "";
 			cardAccess = false;
-			analogWrite(redPin, 255);
-			delay(3000);
-			analogWrite(redPin, 0);
-			return;
+			return blink(redPin, 1000, 1);
 		}
 
 		key = keypad.getKey();
@@ -138,4 +142,14 @@ void loop()
 			Serial.println(number);
 		}
 	}
+}
+
+void blink ( int pin, int time, int repeats) {
+	for (int i = 0; i < repeats; i++) {
+		analogWrite(pin, 255);
+		delay(time);
+		analogWrite(pin, 0);
+		delay(time);
+	}
+	return;
 }
