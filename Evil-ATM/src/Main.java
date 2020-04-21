@@ -10,15 +10,25 @@ public class Main {
     private JPasswordField passwordField = new JPasswordField(MAX_PIN_SIZE);
     private JTextField cashField = new JTextField(4);
     private JLabel result = new JLabel();
+    private  JLabel moneyLeft = new JLabel();
+    private  JLabel errorLabel = new JLabel();
     private String cash = "";
+    int finalCash;
+    int e50 = 0;
+    int e20 = 0;
+    int e10 = 0;
+    int e5 = 0;
     private final static String WELCOME_SCREEN = "Welcome screen";
     private final static String LOGIN_SCREEN = "Login screen";
     private final static String MAIN_MENU = "Main menu";
     private final static String TEST_WINDOW = "test window";
     private final static String TRANSACTION_SCREEN = "transaction screen";
+    private final static String BILLSELECTION_SCREEN = "bill selection screen";
+    private final static String RECEIPT_SCREEN = "receipt screen";
 
     private final static String[] NUMPAD_CONTENT = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#" };
     private final static String[] WITHDRAW_OPTIONS = { "10", "20", "30", "40", "50", "60", "70" };
+    private final static String[] BILLS = { "5", "10", "20", "50"};
 
     final static int MAX_PIN_SIZE = 6;
 
@@ -69,7 +79,7 @@ public class Main {
         transactionScreen.add(cashField);
 
         
-        transactionScreen.add(result);
+
 
         JButton transactionAbortButton = new JButton("Abort");
         transactionAbortButton.addActionListener(abortTransaction);
@@ -93,24 +103,31 @@ public class Main {
                     switch (evt.getActionCommand().toString()) {
                         case "10":
                             result.setText("You receive 1 E10 bill");
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "20":
                             result.setText("You receive 1 E20 bill");
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "30":
                             result.setText("You receive 1 E10 bill and 1 E20 bill");
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "40":
                             result.setText("You receive 2 E20 bills");
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "50":
                             result.setText("You receive 1 E50 bill");
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "60":
                             result.setText("You receive 3 E20 bills");
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "70":
                             result.setText("You receive 1 E50 bill and 1 E20 bill");
+                            setCard(RECEIPT_SCREEN);
                             break;
                         default:
                             result.setText("Something went wrong");
@@ -121,6 +138,7 @@ public class Main {
             withdrawOptions.add(withdrawButtons[i]);
         }
         transactionScreen.add(withdrawOptions);
+
 
         /* Numpad for withdrawal */
         JPanel customPad = new JPanel();
@@ -138,6 +156,105 @@ public class Main {
             customPad.add(customPadButtons[i]);
         }
         transactionScreen.add(customPad);
+        transactionScreen.add(errorLabel);
+
+        /* MONEY SELECTION SCREEN */
+        JPanel billSelectionScreen = new JPanel();
+        billSelectionScreen.add(new JLabel("Bill selection Menu"));
+
+        JButton billSelectionAbortButton = new JButton("Abort");
+        billSelectionAbortButton.addActionListener(abortTransaction);
+        billSelectionScreen.add(billSelectionAbortButton);
+
+        calculateBills();
+
+        JButton billSelectionMain = new JButton("back to main menu");
+        billSelectionMain.addActionListener(backToMainMenu);
+        billSelectionScreen.add(billSelectionMain);
+
+        JPanel billOptions = new JPanel();
+        billOptions.setLayout(new GridLayout(2, 4, 1, 1));
+        JButton[] billButtons = new JButton[BILLS.length];
+        for (int i = 0; i < BILLS.length; i++) {
+            billButtons[i] = new JButton(BILLS[i]);
+            billButtons[i].setPreferredSize(new java.awt.Dimension(80, 50));
+
+            billButtons[i].addActionListener(new ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    System.out.println(evt.getActionCommand().toString());
+
+                    switch (evt.getActionCommand().toString()) {
+                        case "5":
+                            if (finalCash < 5) {
+                                errorLabel.setText("You do not have enough money left");
+                                break;
+                            }
+                            finalCash -= 5;
+                            e5++;
+                            calculateBills();
+                            break;
+                        case "10":
+                            if (finalCash < 10) {
+                                errorLabel.setText("You do not have enough money left");
+                                break;
+                            }
+                            finalCash -= 10;
+                            e10++;
+                            calculateBills();
+                            break;
+                        case "20":
+                            if (finalCash < 20) {
+                                errorLabel.setText("You do not have enough money left");
+                                break;
+                            }
+                            finalCash -= 20;
+                            e20++;
+                            calculateBills();
+                            break;
+                        case "50":
+                            if (finalCash < 50) {
+                                errorLabel.setText("You do not have enough money left");
+                                break;
+                            }
+                            finalCash -= 50;
+                            e50++;
+                            calculateBills();
+                            break;
+                        default:
+                            errorLabel.setText("Something went wrong");
+                            break;
+                    }
+                    if (finalCash == 0) {
+                        setCard(RECEIPT_SCREEN);
+//                        try {
+//                            Thread.sleep(5000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                        setCard(MAIN_MENU);
+                        cash = "";
+
+                    }
+
+                }
+            });
+            billOptions.add(billButtons[i]);
+        }
+        billSelectionScreen.add(billOptions);
+
+        billSelectionScreen.add(moneyLeft);
+        billSelectionScreen.add(result);
+
+        /* RECEIPT SCREEN */
+        JPanel receiptScreen = new JPanel();
+        receiptScreen.add(new JLabel("Receipt Screen"));
+        receiptScreen.add(result);
+        receiptScreen.add(new JLabel("Bedankt voor het gebruiken van Evil Corp."));
+
+        JButton receiptMain = new JButton("back to main menu");
+        receiptMain.addActionListener(backToMainMenu);
+        receiptScreen.add(receiptMain);
+
 
         /* LOGIN SCREEN */
         JPanel loginScreen = new JPanel();
@@ -205,6 +322,8 @@ public class Main {
         cards.add(mainMenu, MAIN_MENU);
         cards.add(testWindow, TEST_WINDOW);
         cards.add(transactionScreen, TRANSACTION_SCREEN);
+        cards.add(billSelectionScreen, BILLSELECTION_SCREEN);
+        cards.add(receiptScreen, RECEIPT_SCREEN);
 
         pane.add(cards, BorderLayout.CENTER);
     }
@@ -257,10 +376,9 @@ public class Main {
 
     public void customWithdrawalButtonActionPerformed(ActionEvent evt) {
         if (evt.getActionCommand().toString().equalsIgnoreCase("#")) {
-            int finalCash = Integer.parseInt(cash);	
-            result.setText(calculateBills(finalCash)); 
-            cash = "";
-            cashField.setText(cash);
+            finalCash = Integer.parseInt(cash);
+            if (!(finalCash % 5 == 0)) return;
+            setCard(BILLSELECTION_SCREEN);
 
         } else if (evt.getActionCommand().toString().equalsIgnoreCase("*")) {
             cash = "";
@@ -273,33 +391,9 @@ public class Main {
         }
     }
 
-    public String calculateBills(int total) {
-        int e50 = 0;
-        int e20 = 0;
-        int e10 = 0;
-        int e5 = 0;
-
-        if (!((total / 5) % 1 == 0)) {
-            return "Please input a number divisible by 5";
-        }
-
-        while (total / 50 >= 1) {
-            e50++;
-            total -= 50;
-        }
-        while (total / 20 >= 1) {
-            e20++;
-            total -= 20;
-        }
-        while (total / 10 >= 1) {
-            e10++;
-            total -= 10;
-        }
-        while (total / 5 >= 1) {
-            e5++;
-            total -= 5;
-        }
+    public void calculateBills() {
         String bills = "You get " + e50 + " E50 bills, " + e20 + " E20 bills, " + e10 + " E10 bills, " + e5 + " E5 bills";
-        return bills;
+        result.setText(bills);
+        moneyLeft.setText("Money left: " + finalCash);
     }
 }

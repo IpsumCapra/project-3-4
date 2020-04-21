@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Keypad.h>
+#include <Wire.h>
 
 #define SS_PIN 10
 #define RST_PIN 9
@@ -16,7 +17,7 @@ char hexaKeys[ROWS][COLS] = {
 	{'4', '5', '6', 'B'},
 	{'7', '8', '9', 'C'},
 	{'*', '0', '#', 'D'}};
-byte rowPins[ROWS] = {7, 6, 4, 5};   //connect to the row pinouts of the keypad
+byte rowPins[ROWS] = {7, 6, 4, 5};	 //connect to the row pinouts of the keypad
 byte colPins[COLS] = {3, 2, A4, A5}; //connect to the column pinouts of the keypad
 
 //initialize an instance of class NewKeypad
@@ -30,12 +31,16 @@ int greenPin = A1;
 String cards[3] = {"CA 4A F5 0B", "96 B6 69 32", "C6 93 B8 32"};
 String pin[3] = {"1234", "0000", "1515"};
 int pinAttempts[3] = {0, 0, 0};
+char card = 'xx xx xx xx';
 int cardNr;
 bool cardAccess = false;
 int number = 0;
 String code;
+char key;
 
-void blink ( int pin, int time, int repeats);
+void blink(int pin, int time, int repeats);
+void requestEvent();
+void receiveEvent();
 
 void setup()
 {
@@ -44,9 +49,18 @@ void setup()
 	mfrc522.PCD_Init(); // Initiate MFRC522
 	Serial.println("Approximate your card to the reader...");
 	Serial.println();
+	Wire.begin(0x08);			  // Initialize I2C communications as Slave
+	Wire.onRequest(requestEvent); // Function to run when data requested from master
+	Wire.onReceive(receiveEvent); // Function to run when data received from master
 }
+
 void loop()
 {
+	key = keypad.getKey();
+	if (key)
+	{
+		Serial.println(key);
+	}
 
 	if (!cardAccess)
 	{
@@ -82,32 +96,31 @@ void loop()
 		{
 			if (content.substring(1) == cards[i]) // scan for card
 			{
-				if (pinAttempts[i] >= 3) {
+				card = cards[i];
+				if (pinAttempts[i] >= 3)
+				{
 					Serial.println("This card is blocked");
 					return blink(redPin, 200, 3);
-					}
-				
+				}
+
 				Serial.println("Authorized access");
 				Serial.println();
-				
+
 				cardNr = i;
 				cardAccess = true;
 				return blink(greenPin, 200, 2);
 			}
-			
 		}
 		Serial.println("Card not found");
 		Serial.println();
 		blink(redPin, 500, 2);
-
 	}
 
 	//-------------------------------------KEYPAD LOGIN--------------------------------------------//.
 
 	if (cardAccess)
 	{
-		
-		char key;
+
 		// correct ping
 		if (number >= 4 && code == pin[cardNr])
 		{
@@ -129,7 +142,6 @@ void loop()
 			return blink(redPin, 1000, 1);
 		}
 
-		key = keypad.getKey();
 		if (key)
 		{ // add key to total code
 			code += key;
@@ -144,12 +156,35 @@ void loop()
 	}
 }
 
-void blink ( int pin, int time, int repeats) {
-	for (int i = 0; i < repeats; i++) {
+void receiveEvent()
+{
+	// Read while data received
+	while (0 < Wire.available())
+	{
+		Serial.println(Wire.read());
+	}
+}
+
+void requestEvent()
+{
+	char info = card + key;
+	Serial.println("Wire data: ");
+	Serial.println(info);
+	Wire.write(info);
+	key = 'x';
+}
+
+void blink(int pin, int time, int repeats)
+{
+	for (int i = 0; i < repeats; i++)
+	{
 		analogWrite(pin, 255);
 		delay(time);
 		analogWrite(pin, 0);
-		delay(time);
+		if (!(i == (repeats - 1)))
+		{
+			delay(time);
+		}
 	}
 	return;
 }
