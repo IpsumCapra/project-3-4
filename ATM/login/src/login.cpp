@@ -31,6 +31,7 @@ int greenPin = A1;
 String cards[3] = {"CA 4A F5 0B", "96 B6 69 32", "C6 93 B8 32"};
 String pin[3] = {"1234", "0000", "1515"};
 int pinAttempts[3] = {0, 0, 0};
+char card = 'xx xx xx xx';
 int cardNr;
 bool cardAccess = false;
 int number = 0;
@@ -95,6 +96,7 @@ void loop()
 		{
 			if (content.substring(1) == cards[i]) // scan for card
 			{
+				card = cards[i];
 				if (pinAttempts[i] >= 3)
 				{
 					Serial.println("This card is blocked");
@@ -165,7 +167,10 @@ void receiveEvent()
 
 void requestEvent()
 {
-	Wire.write(key);
+	char info = card + key;
+	Serial.println("Wire data: ");
+	Serial.println(info);
+	Wire.write(info);
 	key = 'x';
 }
 
