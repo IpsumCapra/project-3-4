@@ -11,6 +11,7 @@ public class Main {
     private JTextField cashField = new JTextField(4);
     private JLabel result = new JLabel();
     private  JLabel moneyLeft = new JLabel();
+    private  JLabel errorLabel = new JLabel();
     private String cash = "";
     int finalCash;
     int e50 = 0;
@@ -102,31 +103,31 @@ public class Main {
                     switch (evt.getActionCommand().toString()) {
                         case "10":
                             result.setText("You receive 1 E10 bill");
-                            setCard(BILLSELECTION_SCREEN);
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "20":
                             result.setText("You receive 1 E20 bill");
-                            setCard(BILLSELECTION_SCREEN);
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "30":
                             result.setText("You receive 1 E10 bill and 1 E20 bill");
-                            setCard(BILLSELECTION_SCREEN);
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "40":
                             result.setText("You receive 2 E20 bills");
-                            setCard(BILLSELECTION_SCREEN);
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "50":
                             result.setText("You receive 1 E50 bill");
-                            setCard(BILLSELECTION_SCREEN);
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "60":
                             result.setText("You receive 3 E20 bills");
-                            setCard(BILLSELECTION_SCREEN);
+                            setCard(RECEIPT_SCREEN);
                             break;
                         case "70":
                             result.setText("You receive 1 E50 bill and 1 E20 bill");
-                            setCard(BILLSELECTION_SCREEN);
+                            setCard(RECEIPT_SCREEN);
                             break;
                         default:
                             result.setText("Something went wrong");
@@ -137,6 +138,7 @@ public class Main {
             withdrawOptions.add(withdrawButtons[i]);
         }
         transactionScreen.add(withdrawOptions);
+
 
         /* Numpad for withdrawal */
         JPanel customPad = new JPanel();
@@ -154,6 +156,7 @@ public class Main {
             customPad.add(customPadButtons[i]);
         }
         transactionScreen.add(customPad);
+        transactionScreen.add(errorLabel);
 
         /* MONEY SELECTION SCREEN */
         JPanel billSelectionScreen = new JPanel();
@@ -183,7 +186,7 @@ public class Main {
                     switch (evt.getActionCommand().toString()) {
                         case "5":
                             if (finalCash < 5) {
-                                result.setText("You do not have enough money left");
+                                errorLabel.setText("You do not have enough money left");
                                 break;
                             }
                             finalCash -= 5;
@@ -192,7 +195,7 @@ public class Main {
                             break;
                         case "10":
                             if (finalCash < 10) {
-                                result.setText("You do not have enough money left");
+                                errorLabel.setText("You do not have enough money left");
                                 break;
                             }
                             finalCash -= 10;
@@ -201,7 +204,7 @@ public class Main {
                             break;
                         case "20":
                             if (finalCash < 20) {
-                                result.setText("You do not have enough money left");
+                                errorLabel.setText("You do not have enough money left");
                                 break;
                             }
                             finalCash -= 20;
@@ -210,7 +213,7 @@ public class Main {
                             break;
                         case "50":
                             if (finalCash < 50) {
-                                result.setText("You do not have enough money left");
+                                errorLabel.setText("You do not have enough money left");
                                 break;
                             }
                             finalCash -= 50;
@@ -218,7 +221,7 @@ public class Main {
                             calculateBills();
                             break;
                         default:
-                            result.setText("Something went wrong");
+                            errorLabel.setText("Something went wrong");
                             break;
                     }
                     if (finalCash == 0) {
