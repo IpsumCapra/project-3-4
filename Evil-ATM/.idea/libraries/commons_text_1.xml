@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="commons-text-1">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/commons-text-1.8" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/commons-text-1.8/apidocs" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/commons-text-1.8" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/commons-text-1.8" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/commons-text-1.8" recursive="false" type="SOURCES" />
+  </library>
+</component>
