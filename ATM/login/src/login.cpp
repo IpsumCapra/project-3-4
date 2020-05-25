@@ -139,7 +139,6 @@ void loop()
 		delay(1);
 		digitalWrite(8, LOW);
 
-		requestEvent();
 	}
 }
 
