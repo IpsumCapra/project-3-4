@@ -4,8 +4,7 @@
 #include <Keypad.h>
 #include <Wire.h>
 #include "Adafruit_Thermal.h"
-#include "adalogo.h"
-#include "adaqrcode.h"
+#include "evillogo.h"
 
 #define TX_PIN 6 // Arduino transmit  YELLOW WIRE  labeled RX on printer
 #define RX_PIN 5 // Arduino receive   GREEN WIRE   labeled TX on printer
@@ -229,12 +228,10 @@ void printReceipt(IBAN, name, withdrawal)
 
 	printer.justify('C');
 	printer.setSize('L'); // Set type size, accepts 'S', 'M', 'L'
-	printer.println(F("Large"));
 	// Print the 75x75 pixel logo in adalogo.h:
-	printer.printBitmap(adalogo_width, adalogo_height, adalogo_data);
+	printer.printBitmap(evillogo_width, evillogo_height, evillogo_data);
 
 	printer.setSize('M');
-	printer.println(F("Medium"));
 
 	printer.justify('L');
 	printer.println(F("\nCustomer Name:"));
