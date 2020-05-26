@@ -3,6 +3,14 @@
 #include <MFRC522.h>
 #include <Keypad.h>
 #include <Wire.h>
+#include "Adafruit_Thermal.h"
+#include "adalogo.h"
+#include "adaqrcode.h"
+
+#define TX_PIN 6 // Arduino transmit  YELLOW WIRE  labeled RX on printer
+#define RX_PIN 5 // Arduino receive   GREEN WIRE   labeled TX on printer
+
+Adafruit_Thermal printer(&Serial1);
 
 #define SS_PIN 10
 #define RST_PIN 9
@@ -31,23 +39,30 @@ int greenPin = A1;
 byte sendArray[17];
 char inKey;
 
+
 void blink(int pin, int time, int repeats);
 void requestEvent();
 void receiveEvent(int i);
+void printReceipt(IBAN, name, withdrawal);
 
 bool blocked = false;
 
 void setup()
 {
-	analogWrite(redPin, 255);
+	// NOTE: SOME PRINTERS NEED 9600 BAUD instead of 19200, check test page.
+	Serial1.begin(19200); // Initialize printer Serial
+	printer.begin();	  // Init printer (same regardless of serial type)
+
 	Serial.begin(9600); // Initiate a serial communication
 	SPI.begin();		// Initiate  SPI bus
 	mfrc522.PCD_Init(); // Initiate MFRC522
 	Serial.println("Approximate your card to the reader...");
 	Serial.println();
+
 	Wire.begin(0x08);			  // Initialize I2C communications as Slave
 	Wire.onRequest(requestEvent); // Function to run when data requested from master
 	Wire.onReceive(receiveEvent); // Function to run when data received from master
+	analogWrite(redPin, 255);
 }
 
 void loop()
@@ -138,13 +153,45 @@ void loop()
 		digitalWrite(8, HIGH);
 		delay(1);
 		digitalWrite(8, LOW);
-
 	}
 }
 
 void receiveEvent(int i)
 {
 	blocked = false;
+
+	int receivePhase = 0;
+	char wireReceive;
+	String IBAN = "";
+	String name = "";
+	String Withdrawal = "";
+
+	while (0 < Wire.available())
+	{
+		wireReceive = Wire.read();
+			
+		if (wireReceive == ',')
+		{
+			receivePhase++;
+		}
+		else if (receivePhase == 0)
+		{
+			IBAN += wireReceive;
+		}
+		else if (receivePhase == 1)
+		{
+			name += wireReceive;
+		}
+		else if (receivePhase == 2)
+		{
+			withdrawal += wireReceive;
+		}
+		else if (receivePhase == 3)
+		{
+			void printReceipt(IBAN, name, withdrawal);
+		}
+		
+	}
 }
 
 void requestEvent()
@@ -173,6 +220,42 @@ void blink(int pin, int time, int repeats)
 		}
 	}
 	return;
+}
+
+void printReceipt(IBAN, name, withdrawal)
+{
+	printer.wake();		  // MUST wake() before printing again, even if reset
+	printer.setDefault(); // Restore printer to defaults
+
+	printer.justify('C');
+	printer.setSize('L'); // Set type size, accepts 'S', 'M', 'L'
+	printer.println(F("Large"));
+	// Print the 75x75 pixel logo in adalogo.h:
+	printer.printBitmap(adalogo_width, adalogo_height, adalogo_data);
+
+	printer.setSize('M');
+	printer.println(F("Medium"));
+
+	printer.justify('L');
+	printer.println(F("\nCustomer Name:"));
+	printer.justify('R');
+	printer.println(F(name));
+	
+	printer.justify('L');
+	printer.println(F("\nIBAN:"));
+	printer.justify('R');
+	printer.println(F(IBAN));
+
+	printer.justify('L');
+	printer.println(F("\nWithdrawal Amount:"));
+	printer.justify('R');
+	printer.println(F("E" + withdrawal + ".00"));
+
+	printer.justify('C');
+	printer.println(F("\nThank you for using the Evil Corp. ATM"));
+
+
+	printer.sleep(); // Tell printer to sleep
 }
 
 /*	FOR PROGRAMMING
