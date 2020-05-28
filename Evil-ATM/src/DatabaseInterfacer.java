@@ -123,7 +123,7 @@ public class DatabaseInterfacer {
         return header;
     }
 
-    static private void sendResponse(JSONObject json) {
+    static private void sendRequest(JSONObject json) {
         dOut.writeUTF(json.toString());
     }
 }
