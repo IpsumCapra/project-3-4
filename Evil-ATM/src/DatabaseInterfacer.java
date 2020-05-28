@@ -30,7 +30,7 @@ public class DatabaseInterfacer {
         return true;
     }
 
-    public String[] getInformation(String accountNumber, String pin, String requestType) {
+    public String[] requestBalance(String accountNumber, String pin) {
         if (!connect()) {
             return errorMsg;
         }
@@ -38,22 +38,18 @@ public class DatabaseInterfacer {
 
             String[] accountInfo = accountNumber.split("-");
 
-            if (requestType == "balance" || requestType == "withdraw") {
-                dOut.writeUTF(requestType);
-                generateRequestJson(requestType, accountInfo, pin);
+            dOut.writeUTF("balance");
+            generateRequestJson(accountInfo, pin);
 
-                JSONObject input = new JSONObject(dIn.readUTF());
-                String[] code = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("code"));
+            JSONObject input = new JSONObject(dIn.readUTF());
+            String[] code = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("code"));
 
-                if (code[0] == "200") {
-                    return input.toString();
-                } else {
-                    return code;
-                }
-
+            if (code[0] == "200") {
+                return input.toString();
             } else {
-                return errorMsg;
+                return code;
             }
+
         } catch (Exception e) {
             return errorMsg;
         }
@@ -61,7 +57,49 @@ public class DatabaseInterfacer {
         return errorMsg;
     }
 
-    static private void generateRequestJson(String requestType, String[] accountInfo, String pin) {
+    public String[] requestTransaction(String accountNumber, String pin, String withdrawAmount) {
+        if (!connect()) {
+            return errorMsg;
+        }
+        try {
+
+            String[] accountInfo = accountNumber.split("-");
+
+            dOut.writeUTF("withdraw");
+            generateRequestJson(withdrawAmount, accountInfo, pin);
+
+            JSONObject input = new JSONObject(dIn.readUTF());
+            String[] code = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("code"));
+
+            if (code[0] == "200") {
+                return input.toString();
+            } else {
+                return code;
+            }
+
+        } catch (Exception e) {
+            return errorMsg;
+        }
+
+        return errorMsg;
+    }
+
+    static private void generateTransactionRequestJson(String withdrawAmount, String[] accountInfo, String pin) {
+        JSONObject json = new JSONObject();
+
+        JSONObject body = new JSONObject();
+
+        body.put("account", accountInfo[2]);
+        body.put("pin", pin);
+        body.put("amount", withdrawAmount);
+
+        json.put("header", generateResponseHeader("withdraw", accountInfo));
+        json.put("body", body);
+
+        sendResponse(json);
+    }
+
+    static private void generateBalanceRequestJson(String[] accountInfo, String pin) {
         JSONObject json = new JSONObject();
 
         JSONObject body = new JSONObject();
@@ -69,7 +107,7 @@ public class DatabaseInterfacer {
         body.put("account", accountInfo[2]);
         body.put("pin", pin);
 
-        json.put("header", generateResponseHeader(requestType, accountInfo));
+        json.put("header", generateResponseHeader("balance", accountInfo));
         json.put("body", body);
 
         sendResponse(json);
