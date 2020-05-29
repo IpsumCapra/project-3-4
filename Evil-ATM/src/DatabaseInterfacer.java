@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public class DatabaseInterfacer {
     private Socket socket;
     private DataInputStream dIn;
-    private DataOutputStream dOut;
+    private static DataOutputStream dOut;
     private String ip;
     private int port;
 
@@ -39,7 +39,7 @@ public class DatabaseInterfacer {
             String[] accountInfo = accountNumber.split("-");
 
             dOut.writeUTF("balance");
-            generateRequestJson(accountInfo, pin);
+            generateBalanceRequestJson(accountInfo, pin);
 
             JSONObject input = new JSONObject(dIn.readUTF());
             String[] code = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("code"));
@@ -66,7 +66,7 @@ public class DatabaseInterfacer {
             String[] accountInfo = accountNumber.split("-");
 
             dOut.writeUTF("withdraw");
-            generateRequestJson(withdrawAmount, accountInfo, pin);
+            generateTransactionRequestJson(withdrawAmount, accountInfo, pin);
 
             JSONObject input = new JSONObject(dIn.readUTF());
             String[] code = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("code"));

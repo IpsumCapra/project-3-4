@@ -2,8 +2,6 @@ import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 
-
-
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeListener;
@@ -11,18 +9,22 @@ import javax.smartcardio.Card;
 import javax.swing.*;
 import javax.swing.text.BoxView;
 
+//local classes
+import KeypadListener;
+import DatabaseInterfacer;
+
 public class Main {
     private JPanel cards; // a panel that uses CardLayout
     private JPasswordField passwordField = new JPasswordField(MAX_PIN_SIZE);
     private JTextField cashField = new JTextField(4);
     private JLabel result = new JLabel();
     private String cash = "";
-    private String pass = "0420";
-    private String firstName = "Sam";
+    private String pass = "";
+    private String firstName = "";
     private String lastNamePreposition = "";
-    private String lastName = "Cornelisse";
-    private String accountNumber = "00000001";
-    private int amountPinned = 1000;
+    private String lastName = "";
+    private String accountNumber = "";
+    private int amountPinned = 0;
     private byte[] receivedData = new byte[5];
 
     private final static String WELCOME_SCREEN = "Welcome screen";
@@ -269,7 +271,7 @@ public class Main {
         Main demo = new Main();
 
         demo.addComponentToPane(frame.getContentPane());
-        demo.setCard(RECEIPT_SCREEN);
+        demo.setCard(WELCOME_SCREEN);
         // Display the window.
         device.setFullScreenWindow(frame);
     }
@@ -292,9 +294,10 @@ public class Main {
 
     public void loginNumpadButtonActionPerformed(ActionEvent evt) {
         if (evt.getActionCommand().toString().equalsIgnoreCase("#")) {
-            setCard(MAIN_MENU);
+     
+
+
         } else if (evt.getActionCommand().toString().equalsIgnoreCase("*")) {
-            setCard(TRANSACTION_SCREEN);
             pass = "";
             passwordField.setText(pass);
         } else {
