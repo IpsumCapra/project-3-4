@@ -19,7 +19,7 @@ public class KeypadListener extends Thread {
     }
 
     public void run() {
-        byte[] receivedData = new byte[17];
+        
         GpioController controller = GpioFactory.getInstance();
         GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN);
         updateTrigger.addListener(new GpioPinListenerDigital() {
@@ -28,6 +28,7 @@ public class KeypadListener extends Thread {
                 if (event.getState() == PinState.HIGH) {
                     try {
                         IBAN = "";
+                        byte[] receivedData = new byte[17];
                         I2CBus bus = I2CFactory.getInstance(1);
                         I2CDevice device = bus.getDevice(0x08);
                         device.read(receivedData, 0, 17);
@@ -53,6 +54,7 @@ public class KeypadListener extends Thread {
     }
 
     public String getIBAN() {
+        
         return this.IBAN;
     }
 

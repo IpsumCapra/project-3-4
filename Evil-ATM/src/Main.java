@@ -8,24 +8,27 @@ import java.beans.PropertyChangeListener;
 import javax.smartcardio.Card;
 import javax.swing.*;
 import javax.swing.text.BoxView;
+import org.json.JSONObject;
+import org.apache.commons.text.StringEscapeUtils;
 
-//local classes
-import KeypadListener;
-import DatabaseInterfacer;
 
 public class Main {
+    DatabaseInterfacer database = new DatabaseInterfacer("145.24.222.190", 665);
+
     private JPanel cards; // a panel that uses CardLayout
     private JPasswordField passwordField = new JPasswordField(MAX_PIN_SIZE);
     private JTextField cashField = new JTextField(4);
     private JLabel result = new JLabel();
+    private JLabel error = new JLabel();
     private String cash = "";
-    private String pass = "";
+    private String pin = "";
+    private String IBAN;
     private String firstName = "";
     private String lastNamePreposition = "";
     private String lastName = "";
     private String accountNumber = "";
     private int amountPinned = 0;
-    private byte[] receivedData = new byte[5];
+    private JSONObject receivedData;
 
     private final static String WELCOME_SCREEN = "Welcome screen";
     private final static String LOGIN_SCREEN = "Login screen";
@@ -33,10 +36,10 @@ public class Main {
     private final static String TEST_WINDOW = "test window";
     private final static String TRANSACTION_SCREEN = "transaction screen";
     private final static String RECEIPT_SCREEN = "receipt screen";
-    //SALDO_SCREEN
+    // SALDO_SCREEN
 
-    private final static String[] NUMPAD_CONTENT = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"};
-    private final static String[] WITHDRAW_OPTIONS = {"10", "20", "30", "40", "50", "60", "70"};
+    private final static String[] NUMPAD_CONTENT = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#" };
+    private final static String[] WITHDRAW_OPTIONS = { "10", "20", "30", "40", "50", "60", "70" };
 
     final static int MAX_PIN_SIZE = 6;
 
@@ -62,11 +65,45 @@ public class Main {
     public void addComponentToPane(Container pane) {
         // Create the atm "screens".
 
+        /* LOGIN SCREEN */
+        JPanel loginScreen = new JPanel();
+
+        passwordField.setEditable(false);
+        loginScreen.add(passwordField);
+
+        JButton loginAbortButton = new JButton("Abort");
+        loginAbortButton.addActionListener(abortTransaction);
+        loginScreen.add(loginAbortButton);
+
+        /* Numpad for login screen */
+        JPanel numpad = new JPanel();
+        numpad.setLayout(new GridLayout(4, 3, 1, 1));
+        JButton[] numpadButtons = new JButton[NUMPAD_CONTENT.length];
+        for (int i = 0; i < NUMPAD_CONTENT.length; i++) {
+            numpadButtons[i] = new JButton(NUMPAD_CONTENT[i]);
+            numpadButtons[i].setPreferredSize(new java.awt.Dimension(80, 50));
+
+            numpadButtons[i].addActionListener(new ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    loginNumpadButtonActionPerformed(evt);
+                }
+            });
+            numpad.add(numpadButtons[i]);
+        }
+        loginScreen.add(numpad);
+        loginScreen.add(error);
+        
         /* WELCOME SCREEN */
         JPanel welcomeScreen = new JPanel();
         welcomeScreen.setLayout(new GridBagLayout());
         welcomeScreen.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         welcomeScreen.add(new JLabel("Welcome to the Evil corp ATM. Insert your card to continue."));
+        KeypadListener loginListener = new KeypadListener(numpadButtons);
+        loginListener.start();
+        while (IBAN.length() < 16) {
+            IBAN = loginListener.getIBAN();
+        }
+        setCard(LOGIN_SCREEN);
 
         /* temp login */
         JButton testCont = new JButton("continue (TEST PURPOSES)");
@@ -85,7 +122,6 @@ public class Main {
 
         cashField.setEditable(false);
         transactionScreen.add(cashField);
-
 
         transactionScreen.add(result);
 
@@ -157,35 +193,6 @@ public class Main {
         }
         transactionScreen.add(customPad);
 
-        /* LOGIN SCREEN */
-        JPanel loginScreen = new JPanel();
-
-        passwordField.setEditable(false);
-        loginScreen.add(passwordField);
-
-        JButton loginAbortButton = new JButton("Abort");
-        loginAbortButton.addActionListener(abortTransaction);
-        loginScreen.add(loginAbortButton);
-
-        /* Numpad for login screen */
-        JPanel numpad = new JPanel();
-        numpad.setLayout(new GridLayout(4, 3, 1, 1));
-        JButton[] numpadButtons = new JButton[NUMPAD_CONTENT.length];
-        for (int i = 0; i < NUMPAD_CONTENT.length; i++) {
-            numpadButtons[i] = new JButton(NUMPAD_CONTENT[i]);
-            numpadButtons[i].setPreferredSize(new java.awt.Dimension(80, 50));
-
-            numpadButtons[i].addActionListener(new ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    loginNumpadButtonActionPerformed(evt);
-                }
-            });
-            numpad.add(numpadButtons[i]);
-        }
-        KeypadListener listener = new KeypadListener(numpadButtons);
-        listener.start();
-        loginScreen.add(numpad);
-
         /* MAIN MENU */
         JPanel mainMenu = new JPanel();
         mainMenu.add(new JLabel("THIS IS THE MAIN MENU"));
@@ -215,17 +222,16 @@ public class Main {
         printButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
                 if (lastNamePreposition.equals(""))
-                    printReceipt(accountNumber, firstName+" "+lastName, String.valueOf(amountPinned));
+                    printReceipt(accountNumber, firstName + " " + lastName, String.valueOf(amountPinned));
                 else
-                    printReceipt(accountNumber, firstName+" "+lastNamePreposition+" "+lastName, String.valueOf(amountPinned));
+                    printReceipt(accountNumber, firstName + " " + lastNamePreposition + " " + lastName,
+                            String.valueOf(amountPinned));
             }
         });
         printWindow.add(printButton);
 
         JButton endTransactionButton = new JButton("NO");
         printWindow.add(endTransactionButton);
-
-
 
         /* TEST WINDOW */
         JPanel testWindow = new JPanel();
@@ -247,7 +253,7 @@ public class Main {
         cards.add(testWindow, TEST_WINDOW);
         cards.add(transactionScreen, TRANSACTION_SCREEN);
         cards.add(printWindow, RECEIPT_SCREEN);
-        //cards.add(saldoWindow
+        // cards.add(saldoWindow
 
         pane.add(cards, BorderLayout.CENTER);
     }
@@ -294,15 +300,28 @@ public class Main {
 
     public void loginNumpadButtonActionPerformed(ActionEvent evt) {
         if (evt.getActionCommand().toString().equalsIgnoreCase("#")) {
-     
+            try {
+                receivedData = new JSONObject(database.requestBalance(IBAN, pin));
+            } catch (Exception e) {
+                error.setText("Something went wrong");
+                return;
+            }
 
+            String code = StringEscapeUtils.escapeJava(receivedData.getJSONObject("body").getString("code"));
+            if (code == "200") {
+                setCard(MAIN_MENU);
+            } else {
+                String message = StringEscapeUtils.escapeJava(receivedData.getJSONObject("body").getString("message"));
+                error.setText("Error: " + message);
+                return;
+            }
 
         } else if (evt.getActionCommand().toString().equalsIgnoreCase("*")) {
-            pass = "";
-            passwordField.setText(pass);
+            pin = "";
+            passwordField.setText(pin);
         } else {
-            pass += evt.getActionCommand().toString();
-            passwordField.setText(pass);
+            pin += evt.getActionCommand().toString();
+            passwordField.setText(pin);
         }
     }
 
@@ -350,7 +369,8 @@ public class Main {
             e5++;
             total -= 5;
         }
-        String bills = "You get " + e50 + " E50 bills, " + e20 + " E20 bills, " + e10 + " E10 bills, " + e5 + " E5 bills";
+        String bills = "You get " + e50 + " E50 bills, " + e20 + " E20 bills, " + e10 + " E10 bills, " + e5
+                + " E5 bills";
         return bills;
     }
 
@@ -358,7 +378,11 @@ public class Main {
         try {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
-            device.write((IBAN+","+name+","+amount+",").getBytes());
+            byte[] receiptData = (IBAN + "," + name + "," + amount + ",").getBytes();
+            for (int i = 0; i < receiptData.length; i++) {
+                device.write(receiptData[i]);
+            }
+            
             return true;
         } catch (Exception ex) {
             return false;

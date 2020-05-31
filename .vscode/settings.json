@@ -1,0 +1,9 @@
+{
+	"java.project.referencedLibraries": [
+		"lib/**/*.jar",
+		"Evil-ATM/libs/json-20200518.jar",
+		"Evil-ATM/libs/commons-lang3-1.0.11.5.jar",
+		"Evil-ATM/libs/commons-text-1.0.11.5.jar",
+		"Evil-ATM/libs/pi4j-core-1.0.jar"
+	]
+}
