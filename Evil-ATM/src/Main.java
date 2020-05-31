@@ -22,7 +22,7 @@ public class Main {
     private JLabel error = new JLabel();
     private String cash = "";
     private String pin = "";
-    private String IBAN;
+    private String IBAN = "";
     private String firstName = "";
     private String lastNamePreposition = "";
     private String lastName = "";
