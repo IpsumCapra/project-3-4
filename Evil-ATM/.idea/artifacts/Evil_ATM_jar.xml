@@ -16,6 +16,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-example-sources.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-gpio-extension-javadoc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-gpio-extension-sources.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/json/json/20190722/json-20190722.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-tests.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-javadoc.jar" path-in-jar="/" />

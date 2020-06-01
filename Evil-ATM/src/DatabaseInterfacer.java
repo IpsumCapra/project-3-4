@@ -43,12 +43,12 @@ public class DatabaseInterfacer {
             generateBalanceRequestJson(accountInfo, pin);
 
             JSONObject input = new JSONObject(dIn.readUTF());
-            String code = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("code"));
+            int code = input.getJSONObject("body").getInt("code");
 
-            if (code == "200") {
+            if (code == 200) {
                 return input.toString();
             } else {
-                return code;
+                return String.valueOf(code);
             }
 
         } catch (Exception e) {
@@ -68,12 +68,12 @@ public class DatabaseInterfacer {
             generateTransactionRequestJson(withdrawAmount, accountInfo, pin);
 
             JSONObject input = new JSONObject(dIn.readUTF());
-            String code = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("code"));
+            int code = input.getJSONObject("body").getInt("code");
 
-            if (code == "200") {
+            if (code == 200) {
                 return input.toString();
             } else {
-                return code;
+                return String.valueOf(code);
             }
 
         } catch (Exception e) {
@@ -90,7 +90,7 @@ public class DatabaseInterfacer {
         body.put("pin", pin);
         body.put("amount", withdrawAmount);
 
-        json.put("header", generateResponseHeader("withdraw", accountInfo));
+        json.put("header", generateRequestHeader("withdraw", accountInfo));
         json.put("body", body);
 
         sendRequest(json);
@@ -104,13 +104,13 @@ public class DatabaseInterfacer {
         body.put("account", accountInfo[2]);
         body.put("pin", pin);
 
-        json.put("header", generateResponseHeader("balance", accountInfo));
+        json.put("header", generateRequestHeader("balance", accountInfo));
         json.put("body", body);
 
         sendRequest(json);
     }
 
-    static private JSONObject generateResponseHeader(String requestType, String[] accountInfo) {
+    static private JSONObject generateRequestHeader(String requestType, String[] accountInfo) {
         JSONObject header = new JSONObject();
         header.put("originCountry", "US");
         header.put("originBank", "EVIL");

@@ -6,17 +6,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
 
+
 public class SQLInterface {
     static private Connection con = null;
     static private DataOutputStream dOut = null;
     static private Socket rec = null;
+    static private Socket buffer = null;
 
-    public static void main(String[] args) throws IOException, SQLException {
-        ServerSocket socket = new ServerSocket(666); // Set up receive socket
+    static private ServerSocket socket;
+
+    public static void main(String[] args) {
         try {
+            socket = new ServerSocket(665); // Set up receive socket
             con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/bank?buseUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC",
-                    "admin", "S7r0ngP455w0rd");
+                    "jdbc:mysql://localhost:3306/bank?buseUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "admin", "S7r0ngP455w0rd");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Could not initiate database connection. Halting.");
@@ -24,98 +27,128 @@ public class SQLInterface {
         }
 
         while (true) {
-            rec = socket.accept();
-            DataInputStream dIn = new DataInputStream(rec.getInputStream());
+            try {
+                rec = socket.accept();
+                System.out.println("Connection started.");
+                DataInputStream dIn = new DataInputStream(rec.getInputStream());
 
-            String messageType = dIn.readUTF();
-            JSONObject input = new JSONObject(dIn.readUTF());
+                String messageType = dIn.readUTF();
+                JSONObject input = new JSONObject(dIn.readUTF());
 
-            String accountNumber = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("account"));
-            String pin = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("pin"));
+                String accountNumber = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("account"));
+                String pin = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("pin"));
 
-            if (!runQuery("SELECT accountNumber FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \""
-                    + accountNumber + "\");").next()) {
-                if (messageType.equals("balance")) {
-                    generateBalanceResponseJson(404, 0, new String[] {}, input);
-                } else if (messageType.equals("withdraw")) {
-                    generateWithdrawResponseJson(404, input);
-                }
-            }
+                if (input.getJSONObject("header").getString("originBank").equals("EVIL") && !messageType.equals("response") && buffer == null) {
+                    buffer = rec;
+                    System.out.println("Saving connection.");
+                    if (!input.getJSONObject("header").getString("receiveBank").equals("EVIL")) {
+                        sendResponse(messageType, input);
+                        continue;
+                    }
 
-            if (runQuery("SELECT CASE WHEN userPin = \"" + pin
-                    + "\" AND blocked = 0 THEN 0 ELSE 1  END FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \""
-                    + accountNumber + "\");").getInt(1) == 1) {
-                runUpdateQuery(
-                        "UPDATE bank.users SET attempts = CASE WHEN attempts < 2 THEN attempts + 1 ELSE 3 END WHERE accountNumber = TRIM(LEADING '0' FROM \""
-                                + accountNumber + "\");");
-                runUpdateQuery(
-                        "UPDATE bank.users SET blocked = CASE WHEN attempts = 3 THEN 1 ELSE 0 END WHERE accountNumber = TRIM(LEADING '0' FROM \""
-                                + accountNumber + "\");");
-
-                int code;
-
-                if (getAttempts(accountNumber) == 3) {
-                    code = 403;
                 } else {
-                    code = 401;
+                    rec.close();
+                    System.out.println("Closing connection.");
                 }
 
-                if (messageType.equals("balance")) {
-                    generateBalanceResponseJson(code, 0, new String[] {}, input);
-                } else if (messageType.equals("withdraw")) {
-                    generateWithdrawResponseJson(code, input);
-                }
-            } else {
-                runUpdateQuery("UPDATE bank.users SET attempts = 0 WHERE accountNumber = TRIM(LEADING '0' FROM \""
-                        + accountNumber + "\");");
-            }
-
-            switch (messageType) {
-                case "balance": // Check data.
-                    ResultSet response = runQuery(
-                            "SELECT firstName, CASE WHEN lastNamePreposition IS NULL THEN \"\" ELSE lastNamePreposition END, lastName, userBalance FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \""
-                                    + accountNumber + "\");");
-
-                    int code = 200;
-                    String[] name = new String[3];
-
-                    for (int i = 1; i < 4; i++) {
-                        name[i - 1] = response.getString(i);
+                if (messageType.equals("response") && buffer != null) {
+                    try {
+                        System.out.println("Sending data back to atm.");
+                        DataOutputStream dOut = new DataOutputStream(buffer.getOutputStream());
+                        dOut.writeUTF(input.toString());
+                        buffer.close();
+                        buffer = null;
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                }
 
-                    int balance = response.getInt(4);
+                if (!con.createStatement().executeQuery("SELECT accountNumber FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");").next()) {
+                    if (messageType.equals("balance")) {
+                        generateBalanceResponseJson(404, 0, new String[]{}, input);
+                    } else if (messageType.equals("withdraw")) {
+                        generateWithdrawResponseJson(404, input);
+                    }
+                }
 
-                    generateBalanceResponseJson(code, balance, name, input);
-                    break;
-                case "withdraw": // Withdraw money.
-                    int amount = input.getJSONObject("body").getInt("amount");
+                if (runQuery("SELECT CASE WHEN userPin = \"" + pin + "\" AND blocked = 0 THEN 0 ELSE 1  END FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");").getInt(1) == 1) {
+                    runUpdateQuery("UPDATE bank.users SET attempts = CASE WHEN attempts < 2 THEN attempts + 1 ELSE 3 END WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                    runUpdateQuery("UPDATE bank.users SET blocked = CASE WHEN attempts = 3 THEN 1 ELSE 0 END WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
 
-                    if (runQuery("SELECT userBalance FROM users.bank WHERE accountNumber = TRIM(LEADING '0' FROM \""
-                            + accountNumber + "\");").getInt(1) - amount < 0) {
-                        generateWithdrawResponseJson(402, input);
+                    int code;
+
+                    if (getAttempts(accountNumber) == 3) {
+                        code = 403;
                     } else {
-                        runUpdateQuery("UPDATE bank.users SET userBalance = userBalance - " + amount
-                                + " WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
-                        generateWithdrawResponseJson(200, input);
+                        code = 401;
                     }
-                    break;
+
+                    if (messageType.equals("balance")) {
+                        generateBalanceResponseJson(code, 0, new String[]{}, input);
+                    } else if (messageType.equals("withdraw")) {
+                        generateWithdrawResponseJson(code, input);
+                    }
+                } else {
+                    runUpdateQuery("UPDATE bank.users SET attempts = 0 WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                }
+
+
+                switch (messageType) {
+                    case "balance": // Check data.
+                        System.out.println("Got balance request!");
+                        ResultSet response = runQuery("SELECT firstName, CASE WHEN lastNamePreposition IS NULL THEN \"\" ELSE lastNamePreposition END, lastName, userBalance FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+
+                        int code = 200;
+                        String[] name = new String[3];
+
+                        for (int i = 1; i < 4; i++) {
+                            name[i - 1] = response.getString(i);
+                        }
+
+                        int balance = response.getInt(4);
+
+                        generateBalanceResponseJson(code, balance, name, input);
+                        break;
+                    case "withdraw": // Withdraw money.
+                        System.out.println("Got withdraw request!");
+                        int amount = input.getJSONObject("body").getInt("amount");
+
+                        if (runQuery("SELECT userBalance FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");").getInt(1) - amount < 0) {
+                            generateWithdrawResponseJson(402, input);
+                        } else {
+                            runUpdateQuery("UPDATE bank.users SET userBalance = userBalance - " + amount + " WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                            generateWithdrawResponseJson(200, input);
+                        }
+                        break;
+                }
+            } catch (Exception e) {
+                System.out.println("Incoming connection aborted.");
             }
         }
     }
 
-    static private ResultSet runQuery(String query) throws SQLException {
-        Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        if (rs.next()) {
-            return rs;
-        } else {
-            return null;
+    static private ResultSet runQuery(String query) {
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return rs;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            System.out.println("WARNING! Could not run query \'" + query + "\'");
         }
+        return null;
     }
 
-    static private void runUpdateQuery(String query) throws SQLException {
-        Statement stmt = con.createStatement();
-        stmt.executeUpdate(query);
+    static private void runUpdateQuery(String query) {
+        try {
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(query);
+        } catch (Exception e) {
+            System.out.println("WARNING! Could not run update query \'" + query + "\'" );
+        }
     }
 
     static private void generateBalanceResponseJson(int code, int amount, String[] name, JSONObject input) {
@@ -148,7 +181,7 @@ public class SQLInterface {
         json.put("header", generateResponseHeader("balance", input));
         json.put("body", body);
 
-        sendResponse(json);
+        sendResponse("balance", json);
     }
 
     static private void generateWithdrawResponseJson(int code, JSONObject input) {
@@ -178,14 +211,23 @@ public class SQLInterface {
         json.put("header", generateResponseHeader("withdraw", input));
         json.put("body", body);
 
-        sendResponse(json);
+        sendResponse("withdraw", json);
     }
 
-    static private void sendResponse(JSONObject json) {
+    static private void sendResponse(String type, JSONObject json) {
         try {
-            dOut.writeUTF(json.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (json.getJSONObject("header").getString("receiveBank").equals("EVIL") && buffer != null) {
+                new DataOutputStream(buffer.getOutputStream()).writeUTF(json.toString());
+                buffer.close();
+                buffer = null;
+            } else if (!json.getJSONObject("header").getString("receiveBank").equals("EVIL")) {
+                Socket socket = new Socket("localhost", 666);
+                DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+                dOut.writeUTF(type);
+                dOut.writeUTF(json.toString());
+            }
+        } catch (Exception e) {
+
         }
     }
 

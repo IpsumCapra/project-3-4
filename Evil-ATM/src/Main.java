@@ -4,10 +4,7 @@ import com.pi4j.io.i2c.I2CFactory;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeListener;
-import javax.smartcardio.Card;
 import javax.swing.*;
-import javax.swing.text.BoxView;
 import org.json.JSONObject;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -97,13 +94,23 @@ public class Main {
         JPanel welcomeScreen = new JPanel();
         welcomeScreen.setLayout(new GridBagLayout());
         welcomeScreen.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        welcomeScreen.add(new JLabel("Welcome to the Evil corp ATM. Insert your card to continue."));
-        KeypadListener loginListener = new KeypadListener(numpadButtons);
-        loginListener.start();
-        while (IBAN.length() < 16) {
-            IBAN = loginListener.getIBAN();
-        }
-        setCard(LOGIN_SCREEN);
+        JLabel welcomeLabel = new JLabel("Welcome to the Evil corp ATM. Insert your card to continue.");
+        welcomeScreen.add(welcomeLabel);
+        //KeypadListener loginListener = new KeypadListener(numpadButtons);
+        //loginListener.start();
+
+        RFIDListener rListener = new RFIDListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                welcomeLabel.setText(actionEvent.getActionCommand());
+                IBAN = actionEvent.getActionCommand().split("-")[2];
+                accountNumber = actionEvent.getActionCommand();
+                setCard(LOGIN_SCREEN);
+                welcomeLabel.setText(accountNumber);
+            }
+        });
+        welcomeLabel.setText("test");
+        rListener.start();
 
         /* temp login */
         JButton testCont = new JButton("continue (TEST PURPOSES)");
@@ -301,14 +308,14 @@ public class Main {
     public void loginNumpadButtonActionPerformed(ActionEvent evt) {
         if (evt.getActionCommand().toString().equalsIgnoreCase("#")) {
             try {
-                receivedData = new JSONObject(database.requestBalance(IBAN, pin));
+                receivedData = new JSONObject(database.requestBalance(accountNumber, pin));
             } catch (Exception e) {
-                error.setText("Something went wrong");
+                error.setText("Something went wrong.");
                 return;
             }
 
-            String code = StringEscapeUtils.escapeJava(receivedData.getJSONObject("body").getString("code"));
-            if (code == "200") {
+            int code = receivedData.getJSONObject("body").getInt("code");
+            if (code == 200) {
                 setCard(MAIN_MENU);
             } else {
                 String message = StringEscapeUtils.escapeJava(receivedData.getJSONObject("body").getString("message"));

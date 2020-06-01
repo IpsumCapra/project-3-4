@@ -4,7 +4,6 @@
 #include <Keypad.h>
 #include <Wire.h>
 #include "Adafruit_Thermal.h"
-#include "evillogo.h"
 #include "elogo.h"
 
 #define TX_PIN 6 // Arduino transmit  YELLOW WIRE  labeled RX on printer
@@ -202,6 +201,7 @@ void receiveEvent(int i)
 
 void requestEvent()
 {
+    digitalWrite(13, HIGH);
     //String info = card + inKey;
     //Serial.println("Wire data: ");
     //Serial.println(info);
