@@ -148,7 +148,7 @@ void loop()
         //PRINT IBAN
         for (uint8_t i = 0; i < 16; i++)
         {
-            Serial.write(buffer2[i]);
+            //Serial.write(buffer2[i]);
             sendArray[i] = buffer2[i];
         }
 
@@ -208,7 +208,7 @@ void requestEvent()
     for (int i = 0; i < 17; i++)
     {
         Wire.write(sendArray[i]);
-        Serial.write(sendArray[i]);
+        //Serial.write(sendArray[i]);
     }
 }
 
