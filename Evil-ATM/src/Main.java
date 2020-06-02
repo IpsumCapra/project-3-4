@@ -14,12 +14,15 @@ import org.apache.commons.text.StringEscapeUtils;
 public class Main {
     DatabaseInterfacer database = new DatabaseInterfacer("145.24.222.190", 665);
 
-    static KeypadListener keypad;
-    static JButton[] numpadButtons;
-    static JButton[] withdrawButtons;
-    static JButton[] customPadButtons;
+    private static KeypadListener keypad;
+    private static JButton[] numpadButtons;
+    private static JButton[] withdrawButtons;
+    private static JButton[] customPadButtons;
 
     static JLabel debug;
+
+    private JLabel cashLabel = new JLabel("amount");
+    private JLabel saldoMessage = new JLabel("message");
 
     private JPanel cards; // a panel that uses CardLayout
     private JPasswordField passwordField = new JPasswordField(MAX_PIN_SIZE);
@@ -42,7 +45,7 @@ public class Main {
     private final static String TEST_WINDOW = "test window";
     private final static String TRANSACTION_SCREEN = "transaction screen";
     private final static String RECEIPT_SCREEN = "receipt screen";
-    // SALDO_SCREEN
+    private final static String SALDO_SCREEN = "saldo screen";
 
     private final static String[] NUMPAD_CONTENT = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#" };
     private final static String[] WITHDRAW_OPTIONS = { "10", "20", "30", "40", "50", "60", "70" };
@@ -218,15 +221,40 @@ public class Main {
         mainLogin.addActionListener(login);
         mainMenu.add(mainLogin);
 
+        /*
         JButton testButton = new JButton("to test window");
         testButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
                 setCard(TEST_WINDOW);
             }
         });
-        mainMenu.add(testButton);
+        */
+
+        JButton saldoButton = new JButton("Check saldo");
+        saldoButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                saldoMessage.setText("Hello " + firstName + " " + lastNamePreposition + " " + lastName + ". This is your current saldo:");
+                cashLabel.setText(cash);
+                setCard(SALDO_SCREEN);
+            }
+        });
+
+        //mainMenu.add(testButton);
+        mainMenu.add(saldoButton);
 
         /* SALDO WINDOW */
+        JPanel saldoWindow = new JPanel();
+        saldoWindow.add(saldoMessage);
+        saldoWindow.add(cashLabel);
+
+        JButton saldoAbort = new JButton("Abort");
+        saldoAbort.addActionListener(abortTransaction);
+        saldoWindow.add(saldoAbort);
+
+        JButton saldoMain = new JButton("back to main menu");
+        saldoMain.addActionListener(backToMainMenu);
+        saldoWindow.add(saldoMain);
+
 
         /* PRINT WINDOW */
         JPanel printWindow = new JPanel();
@@ -266,7 +294,7 @@ public class Main {
         cards.add(testWindow, TEST_WINDOW);
         cards.add(transactionScreen, TRANSACTION_SCREEN);
         cards.add(printWindow, RECEIPT_SCREEN);
-        // cards.add(saldoWindow
+        cards.add(saldoWindow, SALDO_SCREEN);
 
         pane.add(cards, BorderLayout.CENTER);
     }
@@ -322,6 +350,14 @@ public class Main {
 
             int code = receivedData.getJSONObject("body").getInt("code");
             if (code == 200) {
+                if (accountNumber.split("-")[1].equals("EVIL")) {
+                    firstName = receivedData.getJSONObject("body").getString("firstName");
+                    lastNamePreposition = receivedData.getJSONObject("body").getString("lastNamePreposition");
+                    lastName = receivedData.getJSONObject("body").getString("lastName");
+                } else {
+                    firstName = "user";
+                }
+                cash = String.valueOf(receivedData.getJSONObject("body").getInt("balance"));
                 setCard(MAIN_MENU);
             } else {
                 String message = StringEscapeUtils.escapeJava(receivedData.getJSONObject("body").getString("message"));
