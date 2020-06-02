@@ -5,12 +5,21 @@ import com.pi4j.io.i2c.I2CFactory;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.json.JSONObject;
 import org.apache.commons.text.StringEscapeUtils;
 
 
 public class Main {
     DatabaseInterfacer database = new DatabaseInterfacer("145.24.222.190", 665);
+
+    static KeypadListener keypad;
+    static JButton[] numpadButtons;
+    static JButton[] withdrawButtons;
+    static JButton[] customPadButtons;
+
+    static JLabel debug;
 
     private JPanel cards; // a panel that uses CardLayout
     private JPasswordField passwordField = new JPasswordField(MAX_PIN_SIZE);
@@ -64,6 +73,8 @@ public class Main {
 
         /* LOGIN SCREEN */
         JPanel loginScreen = new JPanel();
+        debug = new JLabel("TEST");
+        loginScreen.add(debug);
 
         passwordField.setEditable(false);
         loginScreen.add(passwordField);
@@ -75,7 +86,7 @@ public class Main {
         /* Numpad for login screen */
         JPanel numpad = new JPanel();
         numpad.setLayout(new GridLayout(4, 3, 1, 1));
-        JButton[] numpadButtons = new JButton[NUMPAD_CONTENT.length];
+        numpadButtons = new JButton[NUMPAD_CONTENT.length];
         for (int i = 0; i < NUMPAD_CONTENT.length; i++) {
             numpadButtons[i] = new JButton(NUMPAD_CONTENT[i]);
             numpadButtons[i].setPreferredSize(new java.awt.Dimension(80, 50));
@@ -96,20 +107,15 @@ public class Main {
         welcomeScreen.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JLabel welcomeLabel = new JLabel("Welcome to the Evil corp ATM. Insert your card to continue.");
         welcomeScreen.add(welcomeLabel);
-        //KeypadListener loginListener = new KeypadListener(numpadButtons);
-        //loginListener.start();
 
         RFIDListener rListener = new RFIDListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                welcomeLabel.setText(actionEvent.getActionCommand());
                 IBAN = actionEvent.getActionCommand().split("-")[2];
                 accountNumber = actionEvent.getActionCommand();
                 setCard(LOGIN_SCREEN);
-                welcomeLabel.setText(accountNumber);
             }
         });
-        welcomeLabel.setText("test");
         rListener.start();
 
         /* temp login */
@@ -143,7 +149,7 @@ public class Main {
         /* hotkeys for withdrawal */
         JPanel withdrawOptions = new JPanel();
         withdrawOptions.setLayout(new GridLayout(2, 4, 1, 1));
-        JButton[] withdrawButtons = new JButton[WITHDRAW_OPTIONS.length];
+        withdrawButtons = new JButton[WITHDRAW_OPTIONS.length];
         for (int i = 0; i < WITHDRAW_OPTIONS.length; i++) {
             withdrawButtons[i] = new JButton(WITHDRAW_OPTIONS[i]);
             withdrawButtons[i].setPreferredSize(new java.awt.Dimension(80, 50));
@@ -186,7 +192,7 @@ public class Main {
         /* Numpad for withdrawal */
         JPanel customPad = new JPanel();
         customPad.setLayout(new GridLayout(4, 3, 1, 1));
-        JButton[] customPadButtons = new JButton[NUMPAD_CONTENT.length];
+        customPadButtons = new JButton[NUMPAD_CONTENT.length];
         for (int i = 0; i < NUMPAD_CONTENT.length; i++) {
             customPadButtons[i] = new JButton(NUMPAD_CONTENT[i]);
             customPadButtons[i].setPreferredSize(new java.awt.Dimension(80, 50));
@@ -266,10 +272,7 @@ public class Main {
     }
 
     private static void createAndShowGUI() {
-        // Create and set up the window.
-        String uid = "";
-        char key = 'x';
-
+        // Create and set up the window
         JFrame frame = new JFrame("EVIL ATM GUI");
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -285,6 +288,9 @@ public class Main {
 
         demo.addComponentToPane(frame.getContentPane());
         demo.setCard(WELCOME_SCREEN);
+
+        keypad = new KeypadListener(numpadButtons);
+        keypad.start();
         // Display the window.
         device.setFullScreenWindow(frame);
     }
@@ -310,7 +316,7 @@ public class Main {
             try {
                 receivedData = new JSONObject(database.requestBalance(accountNumber, pin));
             } catch (Exception e) {
-                error.setText("Something went wrong.");
+                error.setText(accountNumber + " " + pin);
                 return;
             }
 

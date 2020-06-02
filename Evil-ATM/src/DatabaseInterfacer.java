@@ -3,7 +3,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 
 public class DatabaseInterfacer {
@@ -43,14 +42,8 @@ public class DatabaseInterfacer {
             generateBalanceRequestJson(accountInfo, pin);
 
             JSONObject input = new JSONObject(dIn.readUTF());
-            int code = input.getJSONObject("body").getInt("code");
 
-            if (code == 200) {
-                return input.toString();
-            } else {
-                return String.valueOf(code);
-            }
-
+            return input.toString();
         } catch (Exception e) {
             return errorMsg;
         }
@@ -68,14 +61,8 @@ public class DatabaseInterfacer {
             generateTransactionRequestJson(withdrawAmount, accountInfo, pin);
 
             JSONObject input = new JSONObject(dIn.readUTF());
-            int code = input.getJSONObject("body").getInt("code");
 
-            if (code == 200) {
-                return input.toString();
-            } else {
-                return String.valueOf(code);
-            }
-
+            return input.toString();
         } catch (Exception e) {
             return errorMsg;
         }

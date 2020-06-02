@@ -73,7 +73,7 @@ public class SQLInterface {
 
                 if (runQuery("SELECT CASE WHEN userPin = \"" + pin + "\" AND blocked = 0 THEN 0 ELSE 1  END FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");").getInt(1) == 1) {
                     runUpdateQuery("UPDATE bank.users SET attempts = CASE WHEN attempts < 2 THEN attempts + 1 ELSE 3 END WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
-                    runUpdateQuery("UPDATE bank.users SET blocked = CASE WHEN attempts = 3 THEN 1 ELSE 0 END WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                    runUpdateQuery("UPDATE bank.users SET blocked = CASE WHEN attempts = 3 OR blocked = 1 THEN 1 ELSE 0 END WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
 
                     int code;
 
