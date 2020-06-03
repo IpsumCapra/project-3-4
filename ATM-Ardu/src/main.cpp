@@ -38,17 +38,12 @@ int greenPin = A1;
 byte sendArray[17];
 char inKey;
 
-void blink(int pin, int time, int repeats);
+void dispenseBills(int amount);
 void requestEvent();
 void receiveEvent(int i);
 void printReceipt(String IBAN, String name, String withdrawal);
 
 bool blocked = false;
-bool printTask = false;
-
-String IBAN = "";
-String name = "";
-String withdrawal = "";
 
 void setup()
 {
@@ -79,12 +74,6 @@ void loop()
         digitalWrite(8, HIGH);
         delay(1);
         digitalWrite(8, LOW);
-    }
-
-    if (printTask)
-    {
-        printReceipt(IBAN, name, withdrawal);
-        printTask = false;
     }
 
     if (!blocked)
@@ -168,8 +157,14 @@ void loop()
 
 void receiveEvent(int i)
 {
+    String IBAN = "";
+    String name = "";
+    String withdrawal = "";
+    String printAmount = "";
+
     int receivePhase = 0;
     char wireReceive;
+    char type;
 
     while (0 < Wire.available())
     {
@@ -178,31 +173,50 @@ void receiveEvent(int i)
         {
             receivePhase++;
         }
+
         else
         {
             switch (receivePhase)
             {
             case 0:
-                = if (wireReceive == '+')
+                if (wireReceive == '+')
                 {
                     blocked = false;
+                }
+                else
+                {
+                    type = wireReceive;
                 }
                 break;
 
             case 1:
-                IBAN += wireReceive;
+                if (type == '#')
+                {
+                    if (wireReceive == '.')
+                    {
+                        dispenseBills(amount.toInt());
+                        break;
+                    }
+                    amount += wireReceive;
+                    break;
+                }
+                else if (type == '*')
+                {
+                    IBAN += wireReceive;
+                }
                 break;
 
             case 2:
-                IBAN += wireReceive;
+                name += wireReceive;
                 break;
 
             case 3:
-                IBAN += wireReceive;
-                break;
-
-            case 4:
-                printTask = true;
+                if (wireReceive == '.')
+                {
+                    printReceipt(IBAN, name, withdrawal);
+                    break;
+                }
+                withdrawal += wireReceive;
                 break;
 
             default:
@@ -223,21 +237,6 @@ void requestEvent()
         Wire.write(sendArray[i]);
         //Serial.write(sendArray[i]);
     }
-}
-
-void blink(int pin, int time, int repeats)
-{
-    for (int i = 0; i < repeats; i++)
-    {
-        analogWrite(pin, 255);
-        delay(time);
-        analogWrite(pin, 0);
-        if (!(i == (repeats - 1)))
-        {
-            delay(time);
-        }
-    }
-    return;
 }
 
 void printReceipt(String IBAN, String name, String withdrawal)
@@ -283,6 +282,35 @@ void printReceipt(String IBAN, String name, String withdrawal)
     printer.feed(3);
 
     printer.sleep(); // Tell printer to sleep
+}
+
+void dispenseBills(int amount)
+{
+    int e50 = 0;
+    int e20 = 0;
+    int e10 = 0;
+    int e5 = 0;
+
+    while (total / 50 >= 1)
+    {
+        e50++;
+        total -= 50;
+    }
+    while (total / 20 >= 1)
+    {
+        e20++;
+        total -= 20;
+    }
+    while (total / 10 >= 1)
+    {
+        e10++;
+        total -= 10;
+    }
+    while (total / 5 >= 1)
+    {
+        e5++;
+        total -= 5;
+    }
 }
 
 /*	FOR PROGRAMMING

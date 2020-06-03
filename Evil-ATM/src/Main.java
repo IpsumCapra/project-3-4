@@ -397,7 +397,7 @@ public class Main {
         int e10 = 0;
         int e5 = 0;
 
-        if (!((total / 5) % 1 == 0)) {
+        if (!(  (total / 5) % 1 == 0)   ) {
             return "Please input a number divisible by 5";
         }
 
@@ -426,7 +426,7 @@ public class Main {
         try {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
-            byte[] receiptData = ("," + IBAN + "," + name + "," + amount + ",").getBytes();
+            byte[] receiptData = ("*," + IBAN + "," + name + "," + amount + ".").getBytes();
             for (int i = 0; i < receiptData.length; i++) {
                 device.write(receiptData[i]);
             }
@@ -442,6 +442,21 @@ public class Main {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
             device.write((byte) '+');
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean dispenseBills(int amount) {
+        try {
+            I2CBus bus = I2CFactory.getInstance(1);
+            I2CDevice device = bus.getDevice(0x08);
+            byte[] billData = ("#," + amount + ".").getBytes();
+            for (int i = 0; i < billData.length; i++) {
+                device.write(billData[i]);
+            }
             return true;
         } catch (IOException e) {
             e.printStackTrace();
