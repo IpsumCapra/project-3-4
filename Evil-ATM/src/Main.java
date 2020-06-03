@@ -4,12 +4,13 @@ import com.pi4j.io.i2c.I2CFactory;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+
 import javax.swing.*;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.json.JSONObject;
 import org.apache.commons.text.StringEscapeUtils;
-
 
 public class Main {
     DatabaseInterfacer database = new DatabaseInterfacer("145.24.222.190", 665);
@@ -103,7 +104,7 @@ public class Main {
         }
         loginScreen.add(numpad);
         loginScreen.add(error);
-        
+
         /* WELCOME SCREEN */
         JPanel welcomeScreen = new JPanel();
         welcomeScreen.setLayout(new GridBagLayout());
@@ -222,24 +223,22 @@ public class Main {
         mainMenu.add(mainLogin);
 
         /*
-        JButton testButton = new JButton("to test window");
-        testButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                setCard(TEST_WINDOW);
-            }
-        });
-        */
+         * JButton testButton = new JButton("to test window");
+         * testButton.addActionListener(new ActionListener() { public void
+         * actionPerformed(ActionEvent actionEvent) { setCard(TEST_WINDOW); } });
+         */
 
         JButton saldoButton = new JButton("Check saldo");
         saldoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                saldoMessage.setText("Hello " + firstName + " " + lastNamePreposition + " " + lastName + ". This is your current saldo:");
+                saldoMessage.setText("Hello " + firstName + " " + lastNamePreposition + " " + lastName
+                        + ". This is your current saldo:");
                 cashLabel.setText(cash);
                 setCard(SALDO_SCREEN);
             }
         });
 
-        //mainMenu.add(testButton);
+        // mainMenu.add(testButton);
         mainMenu.add(saldoButton);
 
         /* SALDO WINDOW */
@@ -254,7 +253,6 @@ public class Main {
         JButton saldoMain = new JButton("back to main menu");
         saldoMain.addActionListener(backToMainMenu);
         saldoWindow.add(saldoMain);
-
 
         /* PRINT WINDOW */
         JPanel printWindow = new JPanel();
@@ -315,6 +313,7 @@ public class Main {
         Main demo = new Main();
 
         demo.addComponentToPane(frame.getContentPane());
+        unblockRFID();
         demo.setCard(WELCOME_SCREEN);
 
         keypad = new KeypadListener(numpadButtons);
@@ -427,13 +426,25 @@ public class Main {
         try {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
-            byte[] receiptData = (IBAN + "," + name + "," + amount + ",").getBytes();
+            byte[] receiptData = ("," + IBAN + "," + name + "," + amount + ",").getBytes();
             for (int i = 0; i < receiptData.length; i++) {
                 device.write(receiptData[i]);
             }
-            
+
             return true;
         } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public static boolean unblockRFID() {
+        try {
+            I2CBus bus = I2CFactory.getInstance(1);
+            I2CDevice device = bus.getDevice(0x08);
+            device.write((byte) '+');
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
     }

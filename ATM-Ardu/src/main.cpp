@@ -20,11 +20,11 @@ const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
 //define the symbols on the buttons of the keypads
 char hexaKeys[ROWS][COLS] = {
-        {'1', '2', '3', 'A'},
-        {'4', '5', '6', 'B'},
-        {'7', '8', '9', 'C'},
-        {'*', '0', '#', 'D'}};
-byte rowPins[ROWS] = {7, 6, 4, 5};	 //connect to the row pinouts of the keypad
+    {'1', '2', '3', 'A'},
+    {'4', '5', '6', 'B'},
+    {'7', '8', '9', 'C'},
+    {'*', '0', '#', 'D'}};
+byte rowPins[ROWS] = {7, 6, 4, 5};   //connect to the row pinouts of the keypad
 byte colPins[COLS] = {3, 2, A2, A3}; //connect to the column pinouts of the keypad
 
 //initialize an instance of class NewKeypad
@@ -37,7 +37,6 @@ int greenPin = A1;
 //vars
 byte sendArray[17];
 char inKey;
-
 
 void blink(int pin, int time, int repeats);
 void requestEvent();
@@ -55,15 +54,15 @@ void setup()
 {
     // NOTE: SOME PRINTERS NEED 9600 BAUD instead of 19200, check test page.
     //Serial.begin(19200); // Initialize printer Serial
-    printer.begin();	  // Init printer (same regardless of serial type)
+    printer.begin(); // Init printer (same regardless of serial type)
 
     Serial.begin(9600); // Initiate a serial communication
-    SPI.begin();		// Initiate  SPI bus
+    SPI.begin();        // Initiate  SPI bus
     mfrc522.PCD_Init(); // Initiate MFRC522
     //Serial.println("Approximate your card to the reader...");
     //Serial.println();
 
-    Wire.begin(0x08);			  // Initialize I2C communications as Slave
+    Wire.begin(0x08);             // Initialize I2C communications as Slave
     Wire.onRequest(requestEvent); // Function to run when data requested from master
     Wire.onReceive(receiveEvent); // Function to run when data received from master
     analogWrite(redPin, 255);
@@ -82,7 +81,8 @@ void loop()
         digitalWrite(8, LOW);
     }
 
-    if (printTask) {
+    if (printTask)
+    {
         printReceipt(IBAN, name, withdrawal);
         printTask = false;
     }
@@ -168,8 +168,6 @@ void loop()
 
 void receiveEvent(int i)
 {
-    blocked = false;
-
     int receivePhase = 0;
     char wireReceive;
 
@@ -180,22 +178,37 @@ void receiveEvent(int i)
         {
             receivePhase++;
         }
-        else if (receivePhase == 0)
+        else
         {
-            IBAN += wireReceive;
+            switch (receivePhase)
+            {
+            case 0:
+                = if (wireReceive == '+')
+                {
+                    blocked = false;
+                }
+                break;
+
+            case 1:
+                IBAN += wireReceive;
+                break;
+
+            case 2:
+                IBAN += wireReceive;
+                break;
+
+            case 3:
+                IBAN += wireReceive;
+                break;
+
+            case 4:
+                printTask = true;
+                break;
+
+            default:
+                break;
+            }
         }
-        else if (receivePhase == 1)
-        {
-            name += wireReceive;
-        }
-        else if (receivePhase == 2)
-        {
-            withdrawal += wireReceive;
-        }
-    }
-    if (receivePhase == 3)
-    {
-        printTask = true;
     }
 }
 
@@ -229,7 +242,7 @@ void blink(int pin, int time, int repeats)
 
 void printReceipt(String IBAN, String name, String withdrawal)
 {
-    printer.wake();		  // MUST wake() before printing again, even if reset
+    printer.wake();       // MUST wake() before printing again, even if reset
     printer.setDefault(); // Restore printer to defaults
 
     printer.justify('C');
