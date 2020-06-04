@@ -1,0 +1,61 @@
+{
+    "configurations": [
+        {
+            "name": "!!! WARNING !!! AUTO-GENERATED FILE, PLEASE DO NOT MODIFY IT AND USE https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "c:/Users/Overlord/The Archive/School/project-3-4/ATM-Ardu/include",
+                "c:/Users/Overlord/The Archive/School/project-3-4/ATM-Ardu/src",
+                "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                "C:/Users/Overlord/.platformio/lib/MFRC522_ID63/src",
+                "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "C:/Users/Overlord/.platformio/lib/Keypad_ID165/src",
+                "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/variants/standard",
+                "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "C:/Users/Overlord/.platformio/packages/tool-unity",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "c:/Users/Overlord/The Archive/School/project-3-4/ATM-Ardu/include",
+                    "c:/Users/Overlord/The Archive/School/project-3-4/ATM-Ardu/src",
+                    "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    "C:/Users/Overlord/.platformio/lib/MFRC522_ID63/src",
+                    "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "C:/Users/Overlord/.platformio/lib/Keypad_ID165/src",
+                    "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/variants/standard",
+                    "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "C:/Users/Overlord/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "C:/Users/Overlord/.platformio/packages/tool-unity",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=40304",
+                "ARDUINO_AVR_UNO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "intelliSenseMode": "clang-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "C:/Users/Overlord/.platformio/packages/toolchain-atmelavr/bin/avr-gcc.exe",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}

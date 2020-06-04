@@ -391,31 +391,31 @@ public class Main {
         }
     }
 
-    public String calculateBills(int total) {
+    public String calculateBills(int amount) {
         int e50 = 0;
         int e20 = 0;
         int e10 = 0;
         int e5 = 0;
 
-        if (!(  (total / 5) % 1 == 0)   ) {
+        if (!((amount / 5) % 1 == 0)) {
             return "Please input a number divisible by 5";
         }
 
-        while (total / 50 >= 1) {
+        while (amount / 50 >= 1) {
             e50++;
-            total -= 50;
+            amount -= 50;
         }
-        while (total / 20 >= 1) {
+        while (amount / 20 >= 1) {
             e20++;
-            total -= 20;
+            amount -= 20;
         }
-        while (total / 10 >= 1) {
+        while (amount / 10 >= 1) {
             e10++;
-            total -= 10;
+            amount -= 10;
         }
-        while (total / 5 >= 1) {
+        while (amount / 5 >= 1) {
             e5++;
-            total -= 5;
+            amount -= 5;
         }
         String bills = "You get " + e50 + " E50 bills, " + e20 + " E20 bills, " + e10 + " E10 bills, " + e5
                 + " E5 bills";
@@ -450,10 +450,36 @@ public class Main {
     }
 
     public static boolean dispenseBills(int amount) {
+        int e50 = 0;
+        int e20 = 0;
+        int e10 = 0;
+        int e5 = 0;
+
+        if (!((amount / 5) % 1 == 0)) {
+            return false;
+        }
+
+        while (amount / 50 >= 1) {
+            e50++;
+            amount -= 50;
+        }
+        while (amount / 20 >= 1) {
+            e20++;
+            amount -= 20;
+        }
+        while (amount / 10 >= 1) {
+            e10++;
+            amount -= 10;
+        }
+        while (amount / 5 >= 1) {
+            e5++;
+            amount -= 5;
+        }
+
         try {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
-            byte[] billData = ("#," + amount + ".").getBytes();
+            byte[] billData = ("#," + e50 + "," + e20 + "," + e10 + "," + e5 + ".").getBytes();
             for (int i = 0; i < billData.length; i++) {
                 device.write(billData[i]);
             }

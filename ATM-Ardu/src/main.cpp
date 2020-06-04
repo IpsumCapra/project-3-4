@@ -30,15 +30,12 @@ byte colPins[COLS] = {3, 2, A2, A3}; //connect to the column pinouts of the keyp
 //initialize an instance of class NewKeypad
 Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-//leds
-int redPin = A0;
-int greenPin = A1;
 
 //vars
 byte sendArray[17];
 char inKey;
 
-void dispenseBills(int amount);
+void dispenseBills();
 void requestEvent();
 void receiveEvent(int i);
 void printReceipt(String IBAN, String name, String withdrawal);
@@ -60,7 +57,6 @@ void setup()
     Wire.begin(0x08);             // Initialize I2C communications as Slave
     Wire.onRequest(requestEvent); // Function to run when data requested from master
     Wire.onReceive(receiveEvent); // Function to run when data received from master
-    analogWrite(redPin, 255);
     //printReceipt("00000001", "Sam Cornelisse", "200");
 }
 
@@ -101,9 +97,6 @@ void loop()
         MFRC522::StatusCode status;
 
         //Serial.println(F("**Card Detected:**"));
-        analogWrite(redPin, 0);
-        blink(greenPin, 175, 2);
-        analogWrite(greenPin, 255);
 
         //-------------------------------------------
 
@@ -161,6 +154,10 @@ void receiveEvent(int i)
     String name = "";
     String withdrawal = "";
     String printAmount = "";
+    String e50 = "";
+    String e20 = "";
+    String e10 = "";
+    String e5 = "";
 
     int receivePhase = 0;
     char wireReceive;
@@ -192,12 +189,7 @@ void receiveEvent(int i)
             case 1:
                 if (type == '#')
                 {
-                    if (wireReceive == '.')
-                    {
-                        dispenseBills(amount.toInt());
-                        break;
-                    }
-                    amount += wireReceive;
+                    e50 += wireReceive;
                     break;
                 }
                 else if (type == '*')
@@ -207,21 +199,44 @@ void receiveEvent(int i)
                 break;
 
             case 2:
-                name += wireReceive;
-                break;
-
-            case 3:
-                if (wireReceive == '.')
+                if (type == '#')
                 {
-                    printReceipt(IBAN, name, withdrawal);
+                    e20 += wireReceive;
                     break;
                 }
-                withdrawal += wireReceive;
+                else if (type == '*')
+                {
+                    name += wireReceive;
+                    break;
+                }
+            case 3:
+                if (type == '#')
+                {
+                    e10 += wireReceive;
+                    break;
+                }
+                else if (type == '*')
+                {
+                    if (wireReceive == '.')
+                    {
+                        printReceipt(IBAN, name, withdrawal);
+                        break;
+                    }
+                    withdrawal += wireReceive;
+                    break;
+                }
+            case 4:
+                if (wireReceive == '.')
+                {
+                    dispenseBills();
+                    break;
+                }
+                e5 += wireReceive;
                 break;
-
-            default:
-                break;
-            }
+                
+                default:
+                    break;
+                }
         }
     }
 }
@@ -284,33 +299,9 @@ void printReceipt(String IBAN, String name, String withdrawal)
     printer.sleep(); // Tell printer to sleep
 }
 
-void dispenseBills(int amount)
+void dispenseBills()
 {
-    int e50 = 0;
-    int e20 = 0;
-    int e10 = 0;
-    int e5 = 0;
-
-    while (total / 50 >= 1)
-    {
-        e50++;
-        total -= 50;
-    }
-    while (total / 20 >= 1)
-    {
-        e20++;
-        total -= 20;
-    }
-    while (total / 10 >= 1)
-    {
-        e10++;
-        total -= 10;
-    }
-    while (total / 5 >= 1)
-    {
-        e5++;
-        total -= 5;
-    }
+    // to do
 }
 
 /*	FOR PROGRAMMING
