@@ -382,32 +382,8 @@ public class Main {
         }
     }
 
-    public static boolean dispenseBills(int amount) {
-        int e50 = 0;
-        int e20 = 0;
-        int e10 = 0;
-        int e5 = 0;
-
-        if (!((amount / 5) % 1 == 0)) {
-            return false;
-        }
-
-        while (amount / 50 >= 1) {
-            e50++;
-            amount -= 50;
-        }
-        while (amount / 20 >= 1) {
-            e20++;
-            amount -= 20;
-        }
-        while (amount / 10 >= 1) {
-            e10++;
-            amount -= 10;
-        }
-        while (amount / 5 >= 1) {
-            e5++;
-            amount -= 5;
-        }
+    public static boolean dispenseBills(int e50, int e20, int e10, int e5) {
+       
 
         try {
             I2CBus bus = I2CFactory.getInstance(1);
