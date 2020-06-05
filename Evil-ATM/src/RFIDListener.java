@@ -18,7 +18,7 @@ public class RFIDListener extends Thread {
 
     @Override
     public void run() {
-        while (!blocked) {
+        if (!blocked) {
             GpioController controller = GpioFactory.getInstance();
             GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00,
                     PinPullResistance.PULL_DOWN);
