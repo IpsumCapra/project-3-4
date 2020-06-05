@@ -33,13 +33,14 @@ Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 //vars
 byte sendArray[17];
 char inKey;
+bool blocked = false;
 
 void dispenseBills();
+void resetVars();
 void requestEvent();
 void receiveEvent(int i);
 void printReceipt(String IBAN, String name, String withdrawal);
 
-bool blocked = false;
 
 void setup()
 {
@@ -177,7 +178,7 @@ void receiveEvent(int i)
             case 0:
                 if (wireReceive == '+')
                 {
-                    blocked = false;
+                    resetVars();
                 }
                 else
                 {
@@ -301,6 +302,16 @@ void printReceipt(String IBAN, String name, String withdrawal)
 void dispenseBills()
 {
     // to do
+}
+
+void resetVars() {
+    blocked = false;
+    for (int i = 0; i < 17; i++)
+    {
+        sendArray[i] = '';
+    }
+    inkey = '';
+    delay(5000);
 }
 
 /*	FOR PROGRAMMING
