@@ -16,6 +16,7 @@ public class Main {
     DatabaseInterfacer database = new DatabaseInterfacer("145.24.222.190", 665);
 
     private static KeypadListener keypad;
+    private static RFIDListener rListener;
     private static JButton[] numpadButtons;
     private static JButton[] withdrawButtons;
     private static JButton[] customPadButtons;
@@ -112,7 +113,7 @@ public class Main {
         JLabel welcomeLabel = new JLabel("Welcome to the Evil corp ATM. Insert your card to continue.");
         welcomeScreen.add(welcomeLabel);
 
-        RFIDListener rListener = new RFIDListener(new ActionListener() {
+        rListener = new RFIDListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 IBAN = actionEvent.getActionCommand().split("-")[2];

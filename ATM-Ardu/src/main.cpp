@@ -30,7 +30,6 @@ byte colPins[COLS] = {3, 2, A2, A3}; //connect to the column pinouts of the keyp
 //initialize an instance of class NewKeypad
 Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-
 //vars
 byte sendArray[17];
 char inKey;
@@ -233,10 +232,10 @@ void receiveEvent(int i)
                 }
                 e5 += wireReceive;
                 break;
-                
-                default:
-                    break;
-                }
+
+            default:
+                break;
+            }
         }
     }
 }
