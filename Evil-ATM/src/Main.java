@@ -118,6 +118,7 @@ public class Main {
                 IBAN = actionEvent.getActionCommand().split("-")[2];
                 accountNumber = actionEvent.getActionCommand();
                 setCard(LOGIN_SCREEN);
+                rListener.setRFIDBlock(true);
             }
         });
         rListener.start();
@@ -442,6 +443,7 @@ public class Main {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
             device.write((byte) '+');
+            rListener.setRFIDBlock(false);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
