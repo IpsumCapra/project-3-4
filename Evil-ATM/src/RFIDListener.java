@@ -1,4 +1,4 @@
-9import com.pi4j.io.gpio.*;
+import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.pi4j.io.i2c.I2CBus;
@@ -8,7 +8,7 @@ import com.pi4j.io.i2c.I2CFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class RFIDListener extends Thread{
+public class RFIDListener extends Thread {
     ActionListener listener;
     private boolean blocked = false;
 
@@ -20,7 +20,8 @@ public class RFIDListener extends Thread{
     public void run() {
         while (!blocked) {
             GpioController controller = GpioFactory.getInstance();
-            GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN);
+            GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00,
+                    PinPullResistance.PULL_DOWN);
             updateTrigger.addListener(new GpioPinListenerDigital() {
                 @Override
                 public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
@@ -32,9 +33,9 @@ public class RFIDListener extends Thread{
                             I2CDevice device = bus.getDevice(0x08);
                             device.read(receivedData, 0, 17);
                             for (int i = 0; i < 16; i++) {
-                                IBAN += (char)receivedData[i];
+                                IBAN += (char) receivedData[i];
                             }
-                            listener.actionPerformed(new ActionEvent(this, 0 , IBAN));
+                            listener.actionPerformed(new ActionEvent(this, 0, IBAN));
                         } catch (Exception ex) {
 
                         }

@@ -5,11 +5,10 @@ import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 
-
 import javax.swing.*;
 
 public class KeypadListener extends Thread {
-    private final static String[] NUMPAD_CONTENT = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"};
+    private final static String[] NUMPAD_CONTENT = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#" };
     private JButton[] buttons;
     boolean deactivate = false;
 
@@ -20,7 +19,8 @@ public class KeypadListener extends Thread {
     public void run() {
         byte[] receivedData = new byte[17];
         GpioController controller = GpioFactory.getInstance();
-        GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN);
+        GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00,
+                PinPullResistance.PULL_DOWN);
         updateTrigger.addListener(new GpioPinListenerDigital() {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {

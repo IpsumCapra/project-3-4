@@ -6,7 +6,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
 
-
 public class SQLInterface {
     static private Connection con = null;
     static private DataOutputStream dOut = null;
@@ -19,7 +18,8 @@ public class SQLInterface {
         try {
             socket = new ServerSocket(665); // Set up receive socket
             con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/bank?buseUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "admin", "S7r0ngP455w0rd");
+                    "jdbc:mysql://localhost:3306/bank?buseUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC",
+                    "admin", "S7r0ngP455w0rd");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Could not initiate database connection. Halting.");
@@ -38,7 +38,8 @@ public class SQLInterface {
                 String accountNumber = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("account"));
                 String pin = StringEscapeUtils.escapeJava(input.getJSONObject("body").getString("pin"));
 
-                if (input.getJSONObject("header").getString("originBank").equals("EVIL") && !messageType.equals("response") && buffer == null) {
+                if (input.getJSONObject("header").getString("originBank").equals("EVIL")
+                        && !messageType.equals("response") && buffer == null) {
                     buffer = rec;
                     System.out.println("Saving connection.");
                     if (!input.getJSONObject("header").getString("receiveBank").equals("EVIL")) {
@@ -63,17 +64,27 @@ public class SQLInterface {
                     }
                 }
 
-                if (!con.createStatement().executeQuery("SELECT accountNumber FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");").next()) {
+                if (!con.createStatement()
+                        .executeQuery(
+                                "SELECT accountNumber FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \""
+                                        + accountNumber + "\");")
+                        .next()) {
                     if (messageType.equals("balance")) {
-                        generateBalanceResponseJson(404, 0, new String[]{}, input);
+                        generateBalanceResponseJson(404, 0, new String[] {}, input);
                     } else if (messageType.equals("withdraw")) {
                         generateWithdrawResponseJson(404, input);
                     }
                 }
 
-                if (runQuery("SELECT CASE WHEN userPin = \"" + pin + "\" AND blocked = 0 THEN 0 ELSE 1  END FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");").getInt(1) == 1) {
-                    runUpdateQuery("UPDATE bank.users SET attempts = CASE WHEN attempts < 2 THEN attempts + 1 ELSE 3 END WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
-                    runUpdateQuery("UPDATE bank.users SET blocked = CASE WHEN attempts = 3 OR blocked = 1 THEN 1 ELSE 0 END WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                if (runQuery("SELECT CASE WHEN userPin = \"" + pin
+                        + "\" AND blocked = 0 THEN 0 ELSE 1  END FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \""
+                        + accountNumber + "\");").getInt(1) == 1) {
+                    runUpdateQuery(
+                            "UPDATE bank.users SET attempts = CASE WHEN attempts < 2 THEN attempts + 1 ELSE 3 END WHERE accountNumber = TRIM(LEADING '0' FROM \""
+                                    + accountNumber + "\");");
+                    runUpdateQuery(
+                            "UPDATE bank.users SET blocked = CASE WHEN attempts = 3 OR blocked = 1 THEN 1 ELSE 0 END WHERE accountNumber = TRIM(LEADING '0' FROM \""
+                                    + accountNumber + "\");");
 
                     int code;
 
@@ -84,19 +95,21 @@ public class SQLInterface {
                     }
 
                     if (messageType.equals("balance")) {
-                        generateBalanceResponseJson(code, 0, new String[]{}, input);
+                        generateBalanceResponseJson(code, 0, new String[] {}, input);
                     } else if (messageType.equals("withdraw")) {
                         generateWithdrawResponseJson(code, input);
                     }
                 } else {
-                    runUpdateQuery("UPDATE bank.users SET attempts = 0 WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                    runUpdateQuery("UPDATE bank.users SET attempts = 0 WHERE accountNumber = TRIM(LEADING '0' FROM \""
+                            + accountNumber + "\");");
                 }
-
 
                 switch (messageType) {
                     case "balance": // Check data.
                         System.out.println("Got balance request!");
-                        ResultSet response = runQuery("SELECT firstName, CASE WHEN lastNamePreposition IS NULL THEN \"\" ELSE lastNamePreposition END, lastName, userBalance FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                        ResultSet response = runQuery(
+                                "SELECT firstName, CASE WHEN lastNamePreposition IS NULL THEN \"\" ELSE lastNamePreposition END, lastName, userBalance FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \""
+                                        + accountNumber + "\");");
 
                         int code = 200;
                         String[] name = new String[3];
@@ -113,10 +126,12 @@ public class SQLInterface {
                         System.out.println("Got withdraw request!");
                         int amount = input.getJSONObject("body").getInt("amount");
 
-                        if (runQuery("SELECT userBalance FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");").getInt(1) - amount < 0) {
+                        if (runQuery("SELECT userBalance FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \""
+                                + accountNumber + "\");").getInt(1) - amount < 0) {
                             generateWithdrawResponseJson(402, input);
                         } else {
-                            runUpdateQuery("UPDATE bank.users SET userBalance = userBalance - " + amount + " WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+                            runUpdateQuery("UPDATE bank.users SET userBalance = userBalance - " + amount
+                                    + " WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
                             generateWithdrawResponseJson(200, input);
                         }
                         break;
@@ -147,7 +162,7 @@ public class SQLInterface {
             Statement stmt = con.createStatement();
             stmt.executeUpdate(query);
         } catch (Exception e) {
-            System.out.println("WARNING! Could not run update query \'" + query + "\'" );
+            System.out.println("WARNING! Could not run update query \'" + query + "\'");
         }
     }
 
@@ -243,7 +258,9 @@ public class SQLInterface {
 
     private static int getAttempts(String accountNumber) {
         try {
-            ResultSet response = runQuery("SELECT attempts FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber + "\");");
+            ResultSet response = runQuery(
+                    "SELECT attempts FROM bank.users WHERE accountNumber = TRIM(LEADING '0' FROM \"" + accountNumber
+                            + "\");");
             return response.getInt(1);
         } catch (Exception e) {
             return -1;
