@@ -75,7 +75,7 @@ public class DatabaseInterfacer {
 
         body.put("account", accountInfo[2]);
         body.put("pin", pin);
-        body.put("amount", withdrawAmount);
+        body.put("amount", Integer.parseInt(withdrawAmount));
 
         json.put("header", generateRequestHeader("withdraw", accountInfo));
         json.put("body", body);

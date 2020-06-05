@@ -10,7 +10,7 @@ import javax.swing.*;
 public class KeypadListener extends Thread {
     private final static String[] NUMPAD_CONTENT = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#" };
     private JButton[] buttons;
-    boolean deactivate = false;
+    private boolean blocked = true;
 
     public KeypadListener(JButton[] buttons) {
         this.buttons = buttons;
@@ -24,7 +24,7 @@ public class KeypadListener extends Thread {
         updateTrigger.addListener(new GpioPinListenerDigital() {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-                if (event.getState() == PinState.HIGH) {
+                if (event.getState() == PinState.HIGH && !blocked) {
                     try {
                         I2CBus bus = I2CFactory.getInstance(1);
                         I2CDevice device = bus.getDevice(0x08);
@@ -41,14 +41,10 @@ public class KeypadListener extends Thread {
                 }
             }
         });
-
-        while (!deactivate) {
-
-        }
     }
 
-    public void toggleKeypad() {
-        deactivate = true;
+    public void setKeypadBlock(boolean block) {
+        this.blocked = block;
     }
 
     public void setButtons(JButton[] buttons) {

@@ -18,31 +18,29 @@ public class RFIDListener extends Thread {
 
     @Override
     public void run() {
-        if (!blocked) {
-            GpioController controller = GpioFactory.getInstance();
-            GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00,
-                    PinPullResistance.PULL_DOWN);
-            updateTrigger.addListener(new GpioPinListenerDigital() {
-                @Override
-                public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-                    if (event.getState() == PinState.HIGH) {
-                        try {
-                            String IBAN = "";
-                            byte[] receivedData = new byte[17];
-                            I2CBus bus = I2CFactory.getInstance(1);
-                            I2CDevice device = bus.getDevice(0x08);
-                            device.read(receivedData, 0, 17);
-                            for (int i = 0; i < 16; i++) {
-                                IBAN += (char) receivedData[i];
-                            }
-                            listener.actionPerformed(new ActionEvent(this, 0, IBAN));
-                        } catch (Exception ex) {
-
+        GpioController controller = GpioFactory.getInstance();
+        GpioPinDigitalInput updateTrigger = controller.provisionDigitalInputPin(RaspiPin.GPIO_00,
+                PinPullResistance.PULL_DOWN);
+        updateTrigger.addListener(new GpioPinListenerDigital() {
+            @Override
+            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+                if (event.getState() == PinState.HIGH && !blocked) {
+                    try {
+                        String IBAN = "";
+                        byte[] receivedData = new byte[17];
+                        I2CBus bus = I2CFactory.getInstance(1);
+                        I2CDevice device = bus.getDevice(0x08);
+                        device.read(receivedData, 0, 17);
+                        for (int i = 0; i < 16; i++) {
+                            IBAN += (char) receivedData[i];
                         }
+                        listener.actionPerformed(new ActionEvent(this, 0, IBAN));
+                    } catch (Exception ex) {
+
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     public void setRFIDBlock(boolean block) {
