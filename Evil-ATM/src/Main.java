@@ -108,15 +108,6 @@ public class Main {
         });
         rListener.start();
 
-        /* temp login */
-        JButton testCont = new JButton("continue (TEST PURPOSES)");
-        testCont.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                setCard(LOGIN_SCREEN);
-            }
-        });
-        welcomeScreen.add(testCont);
-
         /* TRANSACTION SCREEN */
         JPanel transactionScreen = new JPanel();
         transactionScreen.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -136,48 +127,6 @@ public class Main {
         transactionMain.addActionListener(backToMainMenu);
         transactionScreen.add(transactionMain);
 
-        /* hotkeys for withdrawal */
-        JPanel withdrawOptions = new JPanel();
-        withdrawOptions.setLayout(new GridLayout(2, 4, 1, 1));
-        withdrawButtons = new JButton[WITHDRAW_OPTIONS.length];
-        for (int i = 0; i < WITHDRAW_OPTIONS.length; i++) {
-            withdrawButtons[i] = new JButton(WITHDRAW_OPTIONS[i]);
-            withdrawButtons[i].setPreferredSize(new java.awt.Dimension(80, 50));
-
-            withdrawButtons[i].addActionListener(new ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    System.out.println(evt.getActionCommand().toString());
-                    switch (evt.getActionCommand().toString()) {
-                        case "10":
-                            result.setText("You receive 1 E10 bill");
-                            break;
-                        case "20":
-                            result.setText("You receive 1 E20 bill");
-                            break;
-                        case "30":
-                            result.setText("You receive 1 E10 bill and 1 E20 bill");
-                            break;
-                        case "40":
-                            result.setText("You receive 2 E20 bills");
-                            break;
-                        case "50":
-                            result.setText("You receive 1 E50 bill");
-                            break;
-                        case "60":
-                            result.setText("You receive 3 E20 bills");
-                            break;
-                        case "70":
-                            result.setText("You receive 1 E50 bill and 1 E20 bill");
-                            break;
-                        default:
-                            result.setText("Something went wrong");
-                            break;
-                    }
-                }
-            });
-            withdrawOptions.add(withdrawButtons[i]);
-        }
-        transactionScreen.add(withdrawOptions);
 
         /* Numpad for withdrawal */
         JPanel customPad = new JPanel();
