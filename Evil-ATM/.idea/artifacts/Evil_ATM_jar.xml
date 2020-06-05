@@ -8,12 +8,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/commons-text-1.8/commons-text-1.8-javadoc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/commons-text-1.8/commons-text-1.8-sources.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/commons-text-1.8/commons-text-1.8-test-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/mysql-connector-java-8.0.20/mysql-connector-java-8.0.20.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-tests.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-javadoc.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-test-sources.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/json/json/20190722/json-20190722.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/junit.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-core.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-device.jar" path-in-jar="/" />
@@ -27,7 +22,12 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-example-sources.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-gpio-extension-javadoc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/pi4j/pi4j-gpio-extension-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/json/json/20190722/json-20190722.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/mysql-connector-java-8.0.20/mysql-connector-java-8.0.20.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-tests.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-javadoc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-sources.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/commons-lang3-3.10/commons-lang3-3.10-test-sources.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

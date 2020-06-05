@@ -4,11 +4,7 @@ import com.pi4j.io.i2c.I2CFactory;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-
 import javax.swing.*;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.json.JSONObject;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -58,18 +54,6 @@ public class Main {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             setCard(MAIN_MENU);
-        }
-    };
-
-    ActionListener abortTransaction = new ActionListener() {
-        public void actionPerformed(ActionEvent actionEvent) {
-            setCard(WELCOME_SCREEN);
-        }
-    };
-
-    ActionListener login = new ActionListener() {
-        public void actionPerformed(ActionEvent actionEvent) {
-            setCard(LOGIN_SCREEN);
         }
     };
 
@@ -220,28 +204,25 @@ public class Main {
         mainMenuAbortButton.addActionListener(abortTransaction);
         mainMenu.add(mainMenuAbortButton);
 
-        JButton mainLogin = new JButton("To login");
-        mainLogin.addActionListener(login);
-        mainMenu.add(mainLogin);
-
-        /*
-         * JButton testButton = new JButton("to test window");
-         * testButton.addActionListener(new ActionListener() { public void
-         * actionPerformed(ActionEvent actionEvent) { setCard(TEST_WINDOW); } });
-         */
-
         JButton saldoButton = new JButton("Check saldo");
         saldoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                saldoMessage.setText("Hello " + firstName + " " + lastNamePreposition + " " + lastName
-                        + ". This is your current saldo:");
+                saldoMessage.setText("Hello " + firstName + " " + lastNamePreposition + " " + lastName + ". This is your current saldo:");
                 cashLabel.setText(cash);
                 setCard(SALDO_SCREEN);
             }
         });
 
-        // mainMenu.add(testButton);
+        JButton transactionButton = new JButton("New transaction");
+        transactionButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                keypad.setButtons(customPadButtons);
+                setCard(TRANSACTION_SCREEN);
+            }
+        });
+
         mainMenu.add(saldoButton);
+        mainMenu.add(transactionButton);
 
         /* SALDO WINDOW */
         JPanel saldoWindow = new JPanel();
@@ -446,7 +427,7 @@ public class Main {
             device.write((byte) '+');
             rListener.setRFIDBlock(false);
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -487,9 +468,27 @@ public class Main {
                 device.write(billData[i]);
             }
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
+    ActionListener abortTransaction = new ActionListener() {
+        public void actionPerformed(ActionEvent actionEvent) {
+            error.setText("");
+            IBAN = "";
+            receivedData = null;
+            accountNumber = "";
+            firstName = "";
+            lastNamePreposition = "";
+            lastName = "";
+            pin = "";
+            passwordField.setText("");
+            cash = "";
+            keypad.setButtons(numpadButtons);
+            setCard(WELCOME_SCREEN);
+            unblockRFID();
+        }
+    };
 }
