@@ -33,13 +33,14 @@ Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 //vars
 byte sendArray[17];
 char inKey;
+bool blocked = false;
 
 void dispenseBills();
+void resetVars();
 void requestEvent();
 void receiveEvent(int i);
 void printReceipt(String IBAN, String name, String withdrawal);
 
-bool blocked = false;
 
 void setup()
 {
@@ -57,6 +58,9 @@ void setup()
     Wire.onRequest(requestEvent); // Function to run when data requested from master
     Wire.onReceive(receiveEvent); // Function to run when data received from master
     //printReceipt("00000001", "Sam Cornelisse", "200");
+    //printReceipt("00000001", "Sam Cornelisse", "200");
+    //printer.wake();
+    //printer.feed(1);
 }
 
 void loop()
@@ -99,7 +103,7 @@ void loop()
 
         //-------------------------------------------
 
-        mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); //dump some details about the card
+        //mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); //dump some details about the card
 
         //Serial.print(F("IBAN: "));
 
@@ -177,7 +181,7 @@ void receiveEvent(int i)
             case 0:
                 if (wireReceive == '+')
                 {
-                    blocked = false;
+                    resetVars();
                 }
                 else
                 {
@@ -301,6 +305,16 @@ void printReceipt(String IBAN, String name, String withdrawal)
 void dispenseBills()
 {
     // to do
+}
+
+void resetVars() {
+    blocked = false;
+    for (int i = 0; i < 17; i++)
+    {
+        sendArray[i] = ' ';
+    }
+    inKey = ' ';
+    delay(5000);
 }
 
 /*	FOR PROGRAMMING
