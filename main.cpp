@@ -220,7 +220,7 @@ void receiveEvent(int i)
     case '#':
         while (0 < Wire.available())
         {
-            wireReceive = Wire.read();
+            e20 += wireReceive;
             if (wireReceive == '.')
             {
                 dispenseTask = true;

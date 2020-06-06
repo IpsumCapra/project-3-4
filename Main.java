@@ -481,7 +481,7 @@ public class Main {
         try {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
-            byte[] billData = ("#," + noteAmounts[0] + "," + noteAmounts[1] + "," + noteAmounts[2] + "," + noteAmounts[3] + ".").getBytes();
+            byte[] billData = ("#," + noteAmounts[1] + ".").getBytes();
             device.write(billData, 0, billData.length);
             return true;
         } catch (Exception e) {
