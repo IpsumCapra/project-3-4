@@ -35,12 +35,24 @@ byte sendArray[17];
 char inKey;
 bool blocked = false;
 
+String IBAN = "";
+String name = "";
+String withdrawal = "";
+String printAmount = "";
+String e50 = "";
+String e20 = "";
+String e10 = "";
+String e5 = "";
+
+bool printTask = false;
+bool resetTask = false;
+bool dispenseTask = false;
+
 void dispenseBills();
 void resetVars();
 void requestEvent();
 void receiveEvent(int i);
 void printReceipt(String IBAN, String name, String withdrawal);
-
 
 void setup()
 {
@@ -62,6 +74,23 @@ void setup()
 
 void loop()
 {
+    if (printTask)
+    {
+        printReceipt(IBAN, name, withdrawal);
+        printTask = false;
+    }
+    if (resetTask)
+    {
+        resetVars();
+        resetTask = false;
+    }
+    if (dispenseTask)
+    {
+        dispenseBills();
+        dispenseTask = false;
+    }
+     
+
     inKey = keypad.getKey();
     if (inKey)
     {
@@ -150,15 +179,6 @@ void loop()
 
 void receiveEvent(int i)
 {
-    String IBAN = "";
-    String name = "";
-    String withdrawal = "";
-    String printAmount = "";
-    String e50 = "";
-    String e20 = "";
-    String e10 = "";
-    String e5 = "";
-
     int receivePhase = 0;
     char wireReceive;
     char type;
@@ -178,7 +198,7 @@ void receiveEvent(int i)
             case 0:
                 if (wireReceive == '+')
                 {
-                    resetVars();
+                    resetTask = true;
                 }
                 else
                 {
@@ -219,7 +239,7 @@ void receiveEvent(int i)
                 {
                     if (wireReceive == '.')
                     {
-                        printReceipt(IBAN, name, withdrawal);
+                        printTask = true;
                         break;
                     }
                     withdrawal += wireReceive;
@@ -228,7 +248,7 @@ void receiveEvent(int i)
             case 4:
                 if (wireReceive == '.')
                 {
-                    dispenseBills();
+                    dispenseTask = true;
                     break;
                 }
                 e5 += wireReceive;
@@ -304,13 +324,23 @@ void dispenseBills()
     // to do
 }
 
-void resetVars() {
+void resetVars()
+{
     blocked = false;
     for (int i = 0; i < 17; i++)
     {
         sendArray[i] = '';
     }
-    inkey = '';
+    inKey = ' ';
+    IBAN = "";
+    name = "";
+    withdrawal = "";
+    printAmount = "";
+    e50 = "";
+    e20 = "";
+    e10 = "";
+    e5 = "";
+
     delay(5000);
 }
 
