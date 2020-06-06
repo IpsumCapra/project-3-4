@@ -308,9 +308,9 @@ void resetVars() {
     blocked = false;
     for (int i = 0; i < 17; i++)
     {
-        sendArray[i] = 'x';
+        sendArray[i] = '';
     }
-    inKey = 'x';
+    inkey = '';
     delay(5000);
 }
 
