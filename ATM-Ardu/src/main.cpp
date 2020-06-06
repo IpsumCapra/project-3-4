@@ -39,16 +39,13 @@ String IBAN = "";
 String name = "";
 String withdrawal = "";
 String printAmount = "";
-String e50 = "";
 String e20 = "";
-String e10 = "";
-String e5 = "";
 
 bool printTask = false;
 bool resetTask = false;
 bool dispenseTask = false;
 
-void dispenseBills();
+void dispenseBills(String e20);
 void resetVars();
 void requestEvent();
 void receiveEvent(int i);
@@ -86,10 +83,9 @@ void loop()
     }
     if (dispenseTask)
     {
-        dispenseBills();
+        dispenseBills(e20);
         dispenseTask = false;
     }
-     
 
     inKey = keypad.getKey();
     if (inKey)
@@ -129,7 +125,7 @@ void loop()
 
         //-------------------------------------------
 
-        mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); //dump some details about the card
+        //mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); //dump some details about the card
 
         //Serial.print(F("IBAN: "));
 
@@ -180,83 +176,55 @@ void loop()
 void receiveEvent(int i)
 {
     int receivePhase = 0;
-    char wireReceive;
-    char type;
+    char wireReceive = Wire.read();
+    char taskType = wireReceive;
 
     while (0 < Wire.available())
     {
         wireReceive = Wire.read();
-        if (wireReceive == ',')
-        {
-            receivePhase++;
-        }
 
-        else
+        switch (taskType)
         {
+        // reset vars
+        case '+':
+            resetTask = true;
+            break;
+
+        // print receipt
+        case '*':
+
+            if (wireReceive = ',')
+            {
+                receivePhase++;
+            }
             switch (receivePhase)
             {
-            case 0:
-                if (wireReceive == '+')
-                {
-                    resetTask = true;
-                }
-                else
-                {
-                    type = wireReceive;
-                }
-                break;
-
             case 1:
-                if (type == '#')
-                {
-                    e50 += wireReceive;
-                    break;
-                }
-                else if (type == '*')
-                {
-                    IBAN += wireReceive;
-                }
+                IBAN += wireReceive;
                 break;
-
             case 2:
-                if (type == '#')
-                {
-                    e20 += wireReceive;
-                    break;
-                }
-                else if (type == '*')
-                {
-                    name += wireReceive;
-                    break;
-                }
-            case 3:
-                if (type == '#')
-                {
-                    e10 += wireReceive;
-                    break;
-                }
-                else if (type == '*')
-                {
-                    if (wireReceive == '.')
-                    {
-                        printTask = true;
-                        break;
-                    }
-                    withdrawal += wireReceive;
-                    break;
-                }
-            case 4:
-                if (wireReceive == '.')
-                {
-                    dispenseTask = true;
-                    break;
-                }
-                e5 += wireReceive;
+                name += wireReceive;
                 break;
-
-            default:
+            case 3:
+                if (wireReceive = '.')
+                {
+                    printTask = true;
+                    break;
+                }
+                withdrawal += wireReceive;
                 break;
             }
+            break;
+
+        // dispense bills
+        case '#':
+            if (wireReceive = '.')
+            {
+                dispenseTask = true;
+                break;
+            }
+            e20 += wireReceive;
+            break;
         }
     }
 }
@@ -319,9 +287,14 @@ void printReceipt(String IBAN, String name, String withdrawal)
     printer.sleep(); // Tell printer to sleep
 }
 
-void dispenseBills()
+void dispenseBills(String e20)
 {
-    // to do
+    for (int i = e20.toInt(); i > 0; i--)
+    {
+        digitalWrite(A0, HIGH);
+        delay(2000);
+    }
+    digitalWrite(A0, LOW);
 }
 
 void resetVars()
@@ -336,11 +309,7 @@ void resetVars()
     name = "";
     withdrawal = "";
     printAmount = "";
-    e50 = "";
     e20 = "";
-    e10 = "";
-    e5 = "";
-
     delay(5000);
 }
 
