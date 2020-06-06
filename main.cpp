@@ -20,10 +20,10 @@ const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
 //define the symbols on the buttons of the keypads
 char hexaKeys[ROWS][COLS] = {
-        {'1', '2', '3', 'A'},
-        {'4', '5', '6', 'B'},
-        {'7', '8', '9', 'C'},
-        {'*', '0', '#', 'D'}};
+    {'1', '2', '3', 'A'},
+    {'4', '5', '6', 'B'},
+    {'7', '8', '9', 'C'},
+    {'*', '0', '#', 'D'}};
 byte rowPins[ROWS] = {7, 6, 4, 5};   //connect to the row pinouts of the keypad
 byte colPins[COLS] = {3, 2, A2, A3}; //connect to the column pinouts of the keypad
 
@@ -44,6 +44,10 @@ bool printTask = false;
 bool resetTask = false;
 bool dispenseTask = false;
 
+int period = 2000;
+unsigned long time_now = 0;
+
+// funtions
 void dispenseBills(String e20);
 void resetVars();
 void requestEvent();
@@ -70,6 +74,7 @@ void setup()
 
 void loop()
 {
+
     if (printTask)
     {
         printReceipt(IBAN, withdrawal);
@@ -180,41 +185,48 @@ void receiveEvent(int i)
 
     switch (taskType)
     {
-        // reset vars
-        case '+':
-            resetTask = true;
-            break;
-        // print receipt
-        case '*':
-            while (0 < Wire.available()) {
-                wireReceive = Wire.read();
-                if (wireReceive == ',') {
-                    receivePhase++;
-                }
-                else {
-                    switch (receivePhase) {
-                        case 1:
-                            IBAN += wireReceive;
-                            break;
-                        case 2:
-                            if (wireReceive == '.') {
-                                printTask = true;
-                                break;
-                            }
-                            withdrawal += wireReceive;
-                            break;
+    // reset vars
+    case '+':
+        resetTask = true;
+        break;
+    // print receipt
+    case '*':
+        while (0 < Wire.available())
+        {
+            wireReceive = Wire.read();
+            if (wireReceive == ',')
+            {
+                receivePhase++;
+            }
+            else
+            {
+                switch (receivePhase)
+                {
+                case 1:
+                    IBAN += wireReceive;
+                    break;
+                case 2:
+                    if (wireReceive == '.')
+                    {
+                        printTask = true;
+                        break;
                     }
+                    withdrawal += wireReceive;
+                    break;
                 }
             }
-            break;
-        case '#':
-            while (0 < Wire.available()) {
-                wireReceive = Wire.read();
-                if (wireReceive == '.') {
-                    //dispenseTask = true;
-                    //break;
-                }
+        }
+        break;
+    case '#':
+        while (0 < Wire.available())
+        {
+            wireReceive = Wire.read();
+            if (wireReceive == '.')
+            {
+                dispenseTask = true;
+                break;
             }
+        }
     }
 }
 
@@ -273,8 +285,12 @@ void dispenseBills(String e20)
 {
     for (int i = e20.toInt(); i > 0; i--)
     {
+        time_now = millis();
         digitalWrite(A0, HIGH);
-        delay(2000);
+        while (millis() < time_now + period)
+        {
+            // wait 2 seconds
+        }
     }
     digitalWrite(A0, LOW);
 }
@@ -294,7 +310,7 @@ void resetVars()
     delay(5000);
 }
 
-/*	FOR PROGRAMMING
+/*	FOR PROGRAMMING RFID CARDS
 // Prepare key - all keys are set to FFFFFFFFFFFFh at chip delivery from the factory.
 MFRC522::MIFARE_Key key;
 for (byte i = 0; i < 6; i++)
