@@ -36,7 +36,6 @@ char inKey;
 bool blocked = false;
 
 String IBAN = "";
-String name = "";
 String withdrawal = "";
 String printAmount = "";
 String e20 = "";
@@ -49,7 +48,7 @@ void dispenseBills(String e20);
 void resetVars();
 void requestEvent();
 void receiveEvent(int i);
-void printReceipt(String IBAN, String name, String withdrawal);
+void printReceipt(String IBAN, String withdrawal);
 
 void setup()
 {
@@ -73,7 +72,7 @@ void loop()
 {
     if (printTask)
     {
-        printReceipt(IBAN, name, withdrawal);
+        printReceipt(IBAN, withdrawal);
         printTask = false;
     }
     if (resetTask)
@@ -175,7 +174,6 @@ void loop()
 
 void receiveEvent(int i)
 {
-    Serial.println(i);
     int receivePhase = 0;
     char wireReceive = Wire.read();
     char taskType = wireReceive;
@@ -188,9 +186,7 @@ void receiveEvent(int i)
             break;
         // print receipt
         case '*':
-            Serial.println("printtask");
             while (0 < Wire.available()) {
-                Serial.println(Wire.available());
                 wireReceive = Wire.read();
                 if (wireReceive == ',') {
                     receivePhase++;
@@ -201,11 +197,7 @@ void receiveEvent(int i)
                             IBAN += wireReceive;
                             break;
                         case 2:
-                            name += wireReceive;
-                            break;
-                        case 3:
                             if (wireReceive == '.') {
-                                Serial.println("Printing...");
                                 printTask = true;
                                 break;
                             }
@@ -219,13 +211,11 @@ void receiveEvent(int i)
             while (0 < Wire.available()) {
                 wireReceive = Wire.read();
                 if (wireReceive == '.') {
-                    Serial.println("Dispensing...");
                     //dispenseTask = true;
                     //break;
                 }
             }
     }
-    Serial.println("Done!");
 }
 
 void requestEvent()
@@ -241,7 +231,7 @@ void requestEvent()
     }
 }
 
-void printReceipt(String IBAN, String name, String withdrawal)
+void printReceipt(String IBAN, String withdrawal)
 {
     printer.wake();       // MUST wake() before printing again, even if reset
     printer.setDefault(); // Restore printer to defaults
@@ -261,13 +251,6 @@ void printReceipt(String IBAN, String name, String withdrawal)
     printer.feed();
 
     printer.justify('L');
-    printer.println(F("Customer Name:"));
-    printer.justify('R');
-    printer.boldOn();
-    printer.println(name);
-    printer.boldOff();
-
-    printer.justify('L');
     printer.println(F("Withdrawal Amount:"));
     printer.justify('R');
     printer.boldOn();
@@ -281,7 +264,7 @@ void printReceipt(String IBAN, String name, String withdrawal)
     printer.feed();
     printer.println(F("Thank you for choosing Evil Corp"));
     printer.printBitmap(64, 64, elogo);
-    printer.feed(3);
+    printer.feed(4);
 
     printer.sleep(); // Tell printer to sleep
 }
@@ -305,7 +288,6 @@ void resetVars()
     }
     inKey = ' ';
     IBAN = "";
-    name = "";
     withdrawal = "";
     printAmount = "";
     e20 = "";

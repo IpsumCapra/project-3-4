@@ -336,11 +336,7 @@ public class Main {
         JButton printButton = new JButton("YES");
         printButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                if (lastNamePreposition.equals(""))
-                    printReceipt(accountNumber, firstName + " " + lastName, String.valueOf(cash));
-                else
-                    printReceipt(accountNumber, firstName + " " + lastNamePreposition + " " + lastName,
-                            String.valueOf(cash));
+                printReceipt(accountNumber.split("-")[2], String.valueOf(cash));
             }
         });
         printWindow.add(printButton);
@@ -456,11 +452,11 @@ public class Main {
         }
     }
 
-    public boolean printReceipt(String IBAN, String name, String amount) {
+    public boolean printReceipt(String IBAN, String amount) {
         try {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
-            byte[] receiptData = ("*," + IBAN + "," + name + "," + amount + ".").getBytes();
+            byte[] receiptData = ("*," + IBAN + "," + amount + ".").getBytes();
             device.write(receiptData, 0, receiptData.length);
             return true;
         } catch (Exception ex) {
