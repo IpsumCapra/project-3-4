@@ -1,4 +1,4 @@
-//rfid setup
+// lib imports
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Keypad.h>
@@ -11,39 +11,44 @@
 
 Adafruit_Thermal printer(&Serial);
 
+// RFID setup
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 
-//keypad setup
-const byte ROWS = 4; //four rows
-const byte COLS = 4; //four columns
-//define the symbols on the buttons of the keypads
-char hexaKeys[ROWS][COLS] = {
-        {'1', '2', '3', 'A'},
-        {'4', '5', '6', 'B'},
-        {'7', '8', '9', 'C'},
-        {'*', '0', '#', 'D'}};
-byte rowPins[ROWS] = {7, 6, 4, 5};   //connect to the row pinouts of the keypad
-byte colPins[COLS] = {3, 2, A2, A3}; //connect to the column pinouts of the keypad
+// keypad setup
+const byte ROWS = 4; // four rows
+const byte COLS = 4; // four columns
 
-//initialize an instance of class NewKeypad
+// define the symbols on the buttons of the keypads
+char hexaKeys[ROWS][COLS] = {
+    {'1', '2', '3', 'A'},
+    {'4', '5', '6', 'B'},
+    {'7', '8', '9', 'C'},
+    {'*', '0', '#', 'D'}};
+byte rowPins[ROWS] = {7, 6, 4, 5};   // connect to the row pinouts of the keypad
+byte colPins[COLS] = {3, 2, A2, A3}; // connect to the column pinouts of the keypad
+
+// initialize an instance of class NewKeypad
 Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-//vars
+// vars
 byte sendArray[17];
 char inKey;
 bool blocked = false;
 
+// I2C vars
 String IBAN = "";
 String withdrawal = "";
 String printAmount = "";
 String e20 = "";
 
+// function bools
 bool printTask = false;
 bool resetTask = false;
 bool dispenseTask = false;
 
+// motor delay vars
 int period = 2000;
 unsigned long time_now = 0;
 
@@ -76,6 +81,7 @@ void setup()
 void loop()
 {
 
+    // I2C funtion calls
     if (printTask)
     {
         printReceipt(IBAN, withdrawal);
@@ -92,17 +98,20 @@ void loop()
         dispenseTask = false;
     }
 
+    // keypad input
     inKey = keypad.getKey();
     if (inKey)
     {
+        // send key to write array
         sendArray[16] = inKey;
-        //Serial.println(inKey);
+        // send interupt to rpi
         digitalWrite(8, HIGH);
         delay(1);
         digitalWrite(8, LOW);
     }
 
-    if (!blocked)
+    // RDIF reading
+    if (!blocked) // if rfid has been detected stop scanning
     {
         // Look for new cards
         if (!mfrc522.PICC_IsNewCardPresent())
@@ -121,57 +130,40 @@ void loop()
         for (byte i = 0; i < 6; i++)
             key.keyByte[i] = 0xFF;
 
+        //---------------------------------------- Read IBAN
         //some variables we need
         byte block;
         byte len;
         MFRC522::StatusCode status;
-
-        //Serial.println(F("**Card Detected:**"));
-
-        //-------------------------------------------
-
-        //mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); //dump some details about the card
-
-        //Serial.print(F("IBAN: "));
-
         len = 18;
-
-        //---------------------------------------- Read IBAN
-
-        byte buffer2[18];
+        byte buffer2[len];
         block = 1;
 
         status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 1, &key, &(mfrc522.uid)); //line 834
         if (status != MFRC522::STATUS_OK)
         {
-            //Serial.print(F("Authentication failed: "));
-            //Serial.println(mfrc522.GetStatusCodeName(status));
             return;
         }
 
         status = mfrc522.MIFARE_Read(block, buffer2, &len);
         if (status != MFRC522::STATUS_OK)
         {
-            //Serial.print(F("Reading failed: "));
-            //Serial.println(mfrc522.GetStatusCodeName(status));
             return;
         }
 
-        //PRINT IBAN
+        // send iban to write array
         for (uint8_t i = 0; i < 16; i++)
         {
-            //Serial.write(buffer2[i]);
             sendArray[i] = buffer2[i];
         }
 
         //----------------------------------------
 
-        //Serial.println(F("\n**End Reading**\n"));
-
         mfrc522.PICC_HaltA();
         mfrc522.PCD_StopCrypto1();
-
         blocked = true;
+
+        // send interupt to rpi
         digitalWrite(8, HIGH);
         delay(1);
         digitalWrite(8, LOW);
@@ -182,67 +174,68 @@ void receiveEvent(int i)
 {
     int receivePhase = 0;
     char wireReceive = Wire.read();
-    char taskType = wireReceive;
+    char taskType = wireReceive; // look what task the rpi send
 
     switch (taskType)
     {
-        // reset vars
-        case '+':
-            resetTask = true;
-            break;
-            // print receipt
-        case '*':
-            while (0 < Wire.available())
+
+    // reset vars
+    case '+':
+        resetTask = true;
+        break;
+
+    // print receipt
+    case '*':
+        while (0 < Wire.available())
+        {
+            wireReceive = Wire.read();
+            if (wireReceive == ',') 
             {
-                wireReceive = Wire.read();
-                if (wireReceive == ',')
-                {
-                    receivePhase++;
-                }
-                else
-                {
-                    switch (receivePhase)
-                    {
-                        case 1:
-                            IBAN += wireReceive;
-                            break;
-                        case 2:
-                            if (wireReceive == '.')
-                            {
-                                printTask = true;
-                                break;
-                            }
-                            withdrawal += wireReceive;
-                            break;
-                    }
-                }
+                receivePhase++;
             }
-            break;
-        case '#':
-            while (0 < Wire.available())
+            else // divide i2c input into the different parts
             {
-                wireReceive = Wire.read();
-                if (wireReceive == '.')
+                switch (receivePhase)
                 {
-                    if (e20.toInt() > 0)
-                        dispenseTask = true;
+                case 1:
+                    IBAN += wireReceive;
+                    break;
+                case 2:
+                    if (wireReceive == '.')
+                    {
+                        printTask = true;
+                        break;
+                    }
+                    withdrawal += wireReceive;
                     break;
                 }
-                e20 += wireReceive;
             }
+        }
+        break;
+
+    // dispense bills
+    case '#':
+        while (0 < Wire.available())
+        {
+            wireReceive = Wire.read();
+            if (wireReceive == '.')
+            {
+                if (e20.toInt() > 0)
+                    dispenseTask = true;
+                break;
+            }
+            e20 += wireReceive;
+        }
     }
 }
 
 void requestEvent()
 {
     digitalWrite(13, HIGH);
-    //String info = card + inKey;
-    //Serial.println("Wire data: ");
-    //Serial.println(info);
+    // send gathered rfid and keypad data to rpi
     for (int i = 0; i < 17; i++)
     {
         Wire.write(sendArray[i]);
-        //Serial.write(sendArray[i]);
     }
 }
 
@@ -286,7 +279,7 @@ void printReceipt(String IBAN, String withdrawal)
 
 void dispenseBills(String e20)
 {
-    for (int i = e20.toInt(); i > 0; i--)
+    for (int i = e20.toInt(); i > 0; i--) // for each bill set motor on for 2 seconds
     {
         time_now = millis();
         digitalWrite(A0, HIGH);
@@ -298,7 +291,7 @@ void dispenseBills(String e20)
     digitalWrite(A0, LOW);
 }
 
-void resetVars()
+void resetVars() // clear all variables for new atm session
 {
     blocked = false;
     for (int i = 0; i < 17; i++)
