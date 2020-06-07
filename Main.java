@@ -4,6 +4,9 @@ import com.pi4j.io.i2c.I2CFactory;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Scanner;
 import javax.swing.*;
 import org.json.JSONObject;
 import org.apache.commons.text.StringEscapeUtils;
@@ -16,6 +19,8 @@ public class Main {
     private static JButton[] numpadButtons;
     private static JButton[] withdrawButtons;
     private static JButton[] customPadButtons;
+
+    private File file = new File("notes");
 
     static private final int[] NOTE_VALUES = new int[]{50, 20, 10, 5};
     static private int noteAmounts[] = new int[]{0, 0, 0, 0};
@@ -30,6 +35,8 @@ public class Main {
     private JTextField cashField = new JTextField(4);
     private JLabel result = new JLabel();
     private JLabel error = new JLabel();
+    private JLabel transactionError = new JLabel();
+    private JLabel internalNoteAmountLabel = new JLabel();
     private String cash = "";
     private String pin = "";
     private String firstName = "";
@@ -169,7 +176,7 @@ public class Main {
         /* NOTE SELECTOR */
         JPanel noteSelectorScreen = new JPanel();
 
-        JLabel transactionError = new JLabel();
+        noteSelectorScreen.add(transactionError);
 
         JButton noteAbortButton = new JButton("Abort");
         noteAbortButton.addActionListener(abortTransaction);
@@ -191,6 +198,24 @@ public class Main {
         JButton continueTransaction = new JButton("Perform transaction");
         continueTransaction.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    Scanner notes = new Scanner(file);
+
+                    String[] noteArray = notes.nextLine().split(",");
+
+                    notes.close();
+
+                    for (int i = 0; i < noteAmounts.length; i++) {
+                        if (Integer.parseInt(noteArray[i]) < noteAmounts[i]) {
+                            transactionError.setText("Something went wrong. Please contact Evil Corp.");
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    transactionError.setText("Something went wrong.");
+                    return;
+                }
+
                 JSONObject response;
                 try {
                     response = new JSONObject(database.requestTransaction(accountNumber, pin, cash));
@@ -201,14 +226,33 @@ public class Main {
 
                 int code = response.getJSONObject("body").getInt("code");
                 if (code == 200) {
+                    try {
+                        Scanner notes = new Scanner(file);
+
+                        String[] noteArray = notes.nextLine().split(",");
+
+                        notes.close();
+
+                        for (int i = 0; i < noteAmounts.length; i++) {
+                            noteArray[i] = String.valueOf(Integer.parseInt(noteArray[i]) - noteAmounts[i]);
+                        }
+
+                        internalNoteAmountLabel.setText("ATM note amounts: E50: " + noteArray[0] + " E20: " + noteArray[1] + " E10: " + noteArray[2] + " E5: " + noteArray[3]);
+
+                        FileWriter writer = new FileWriter(file, false);
+
+                        writer.write(noteArray[0] + "," + noteArray[1] + "," + noteArray[2] + "," + noteArray[3]);
+                        writer.close();
+                    } catch (Exception e) {
+
+                    }
                     dispenseBills();
                     setCard(RECEIPT_SCREEN);
                 } else {
-                    String message = StringEscapeUtils.escapeJava(receivedData.getJSONObject("body").getString("message"));
-                    transactionError.setText("Error: " + message);
+                    String message = StringEscapeUtils.escapeJava(response.getJSONObject("body").getString("message"));
+                    transactionError.setText("Error " + code + ": " + message);
+                    return;
                 }
-
-                setCard(RECEIPT_SCREEN);
             }
         });
         noteSelectorScreen.add(continueTransaction);
@@ -354,6 +398,8 @@ public class Main {
         JButton endTransactionButton = new JButton("NO");
         endTransactionButton.addActionListener(abortTransaction);
         printWindow.add(endTransactionButton);
+
+        printWindow.add(internalNoteAmountLabel);
 
         // Create the panel that contains the "screens".
         cards = new JPanel(new CardLayout());
@@ -507,6 +553,7 @@ public class Main {
             welcomeLabel.setText(TRANSACT_FINISH);
 
             error.setText("");
+
             receivedData = null;
             accountNumber = "";
             firstName = "";
