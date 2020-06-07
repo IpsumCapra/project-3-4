@@ -20,8 +20,7 @@ public class Main {
     static private final int[] NOTE_VALUES = new int[]{50, 20, 10, 5};
     static private int noteAmounts[] = new int[]{0, 0, 0, 0};
     static private JLabel[] noteAmountText = new JLabel[4];
-
-    static JLabel debug;
+    static private JLabel welcomeLabel = new JLabel();
 
     private JLabel cashLabel = new JLabel("amount");
     private JLabel saldoMessage = new JLabel("message");
@@ -48,6 +47,9 @@ public class Main {
     private final static String NOTE_SELECT_SCREEN = "Note selection screen";
     private final static String CUSTOM_AMOUNT_SCREEN = "Custom amount selection screen";
 
+    private final static String WELCOME_TEXT = "Welcome to the Evil corp ATM. Insert your card to continue.";
+    private final static String TRANSACT_FINISH = "Thank you for choosing Evil Corp. Please remove your debit card, cash and receipt.";
+
     private final static String[] NUMPAD_CONTENT = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#" };
     private final static String[] WITHDRAW_OPTIONS = { "10", "20", "30", "40", "50", "60", "70", "Custom amount" };
 
@@ -60,6 +62,13 @@ public class Main {
             setCard(MAIN_MENU);
         }
     };
+
+    Timer timer = new Timer(5000, new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            welcomeLabel.setText(WELCOME_TEXT);
+        }
+    });
 
     public void addComponentToPane(Container pane) {
         // Create the atm "screens".
@@ -96,7 +105,7 @@ public class Main {
         JPanel welcomeScreen = new JPanel();
         welcomeScreen.setLayout(new GridBagLayout());
         welcomeScreen.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JLabel welcomeLabel = new JLabel("Welcome to the Evil corp ATM. Insert your card to continue.");
+        welcomeLabel = new JLabel(WELCOME_TEXT);
         welcomeScreen.add(welcomeLabel);
 
         rListener = new RFIDListener(new ActionListener() {
@@ -336,7 +345,8 @@ public class Main {
         JButton printButton = new JButton("YES");
         printButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                printReceipt(accountNumber.split("-")[2], String.valueOf(cash));
+                if (printReceipt(accountNumber.split("-")[2], String.valueOf(cash)))
+                    abortTransaction.actionPerformed(actionEvent);
             }
         });
         printWindow.add(printButton);
@@ -481,7 +491,7 @@ public class Main {
         try {
             I2CBus bus = I2CFactory.getInstance(1);
             I2CDevice device = bus.getDevice(0x08);
-            byte[] billData = ("#," + noteAmounts[1] + ".").getBytes();
+            byte[] billData = ("#" + noteAmounts[1] + ".").getBytes();
             device.write(billData, 0, billData.length);
             return true;
         } catch (Exception e) {
@@ -492,6 +502,10 @@ public class Main {
 
     ActionListener abortTransaction = new ActionListener() {
         public void actionPerformed(ActionEvent actionEvent) {
+            setCard(WELCOME_SCREEN);
+
+            welcomeLabel.setText(TRANSACT_FINISH);
+
             error.setText("");
             receivedData = null;
             accountNumber = "";
@@ -503,8 +517,10 @@ public class Main {
             cash = "";
             keypad.setButtons(numpadButtons);
             keypad.setKeypadBlock(true);
-            setCard(WELCOME_SCREEN);
             unblockRFID();
+
+            timer.stop();
+            timer.start();
         }
     };
 

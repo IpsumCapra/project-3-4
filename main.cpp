@@ -20,10 +20,10 @@ const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
 //define the symbols on the buttons of the keypads
 char hexaKeys[ROWS][COLS] = {
-    {'1', '2', '3', 'A'},
-    {'4', '5', '6', 'B'},
-    {'7', '8', '9', 'C'},
-    {'*', '0', '#', 'D'}};
+        {'1', '2', '3', 'A'},
+        {'4', '5', '6', 'B'},
+        {'7', '8', '9', 'C'},
+        {'*', '0', '#', 'D'}};
 byte rowPins[ROWS] = {7, 6, 4, 5};   //connect to the row pinouts of the keypad
 byte colPins[COLS] = {3, 2, A2, A3}; //connect to the column pinouts of the keypad
 
@@ -70,6 +70,7 @@ void setup()
     Wire.onRequest(requestEvent); // Function to run when data requested from master
     Wire.onReceive(receiveEvent); // Function to run when data received from master
     //printReceipt("00000001", "Sam Cornelisse", "200");
+    pinMode(A0, OUTPUT);
 }
 
 void loop()
@@ -185,48 +186,50 @@ void receiveEvent(int i)
 
     switch (taskType)
     {
-    // reset vars
-    case '+':
-        resetTask = true;
-        break;
-    // print receipt
-    case '*':
-        while (0 < Wire.available())
-        {
-            wireReceive = Wire.read();
-            if (wireReceive == ',')
+        // reset vars
+        case '+':
+            resetTask = true;
+            break;
+            // print receipt
+        case '*':
+            while (0 < Wire.available())
             {
-                receivePhase++;
-            }
-            else
-            {
-                switch (receivePhase)
+                wireReceive = Wire.read();
+                if (wireReceive == ',')
                 {
-                case 1:
-                    IBAN += wireReceive;
-                    break;
-                case 2:
-                    if (wireReceive == '.')
+                    receivePhase++;
+                }
+                else
+                {
+                    switch (receivePhase)
                     {
-                        printTask = true;
-                        break;
+                        case 1:
+                            IBAN += wireReceive;
+                            break;
+                        case 2:
+                            if (wireReceive == '.')
+                            {
+                                printTask = true;
+                                break;
+                            }
+                            withdrawal += wireReceive;
+                            break;
                     }
-                    withdrawal += wireReceive;
-                    break;
                 }
             }
-        }
-        break;
-    case '#':
-        while (0 < Wire.available())
-        {
-            if (wireReceive == '.')
+            break;
+        case '#':
+            while (0 < Wire.available())
             {
-                dispenseTask = true;
-                break;
+                wireReceive = Wire.read();
+                if (wireReceive == '.')
+                {
+                    if (e20.toInt() > 0)
+                        dispenseTask = true;
+                    break;
+                }
+                e20 += wireReceive;
             }
-            e20 += wireReceive;
-        }
     }
 }
 
